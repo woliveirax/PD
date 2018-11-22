@@ -1,0 +1,173 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Threads;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
+class DownloadException extends Exception {
+    public DownloadException(String msg){
+        super(msg);
+    }
+}
+
+class FileException extends Exception {
+    public FileException(String message) {
+        super(message);
+    }
+}
+
+class DirectoryException extends Exception {
+    public DirectoryException(String message){
+        super(message);
+    }
+}
+
+/**
+ * @version 1.0
+ */
+public class DownloadService extends Thread {
+    private static final int MAX_PACKET_SIZE = 10000;
+    private static final int TIMEOUT = 2000;
+    
+    private Socket socket;
+    
+    private FileOutputStream fileToWrite;
+    private final File directory;
+    private final File file;
+    
+    private final String address;
+    private final int port;
+
+    /**
+     * Download a file from a selected source
+     * 
+     * @param filename name of the file to download
+     * @param localDirectory directory where the file will be placed
+     * @param address address of the download source
+     * @param port port of the source
+     * @throws FileException if the file already exists the system will throw this
+     * @throws DirectoryException  if the directory already exists the system will throw this
+     */
+    
+    //TODO: must receive the handler for the download file counter
+    public DownloadService(String filename, String localDirectory,
+                           String address, int port)
+        throws FileException, DirectoryException
+    {
+        this.address = address.trim();
+        this.port = port;
+        
+        this.directory = new File(localDirectory.trim());
+        this.file = new File(localDirectory.trim() + File.separator +
+                            filename.trim());
+        
+        if(!directory.exists()){
+            throw new DirectoryException("Directory \'" + directory.getPath() 
+                    + "\'" + "does not exist!");
+        }
+        
+        if(!directory.isDirectory()){
+            throw new DirectoryException("Path: \'" + directory.getPath() +
+                    "\' not a valid directory!");
+        }
+        
+        if(!directory.canWrite()){
+            throw new DirectoryException("Can not write to: \'" + 
+                    directory.getPath() + "\' check permissions!");
+        }
+        
+        if(file.exists()){
+            throw new FileException("File: \'" + file.getName()
+                    + "already exists!");
+        }
+    }
+    
+    private void connectToPeer() throws ConnectException{
+        try{
+            socket = new Socket(address, port);
+            socket.setSoTimeout(TIMEOUT);
+            
+        }catch(SocketTimeoutException e){
+            throw new ConnectException("Connection timeout: " + e);
+        }catch(SocketException e){
+            throw new ConnectException("Socket error: " + e);
+        }catch(UnknownHostException e){
+            throw new ConnectException("Host unknown: " + e);
+        }catch(IOException e){
+            throw new ConnectException("Could not connect to host:" + e);
+        }
+    }
+    
+    
+    private void downloadFile()
+            throws DownloadException
+    {
+        try{
+            int nbytes = 0;
+            byte[] chunk = new byte[MAX_PACKET_SIZE];
+            
+            PrintWriter out = new PrintWriter(socket.getOutputStream());
+            
+            InputStream in = socket.getInputStream();
+            out.println(file.getName());
+            out.flush();
+            
+            while((nbytes = in.read(chunk)) > 0){
+                fileToWrite.write(chunk, 0, nbytes);
+            }
+            
+        }catch(SocketTimeoutException e){
+            throw new DownloadException("Connection timed out!" +
+                    " file transfer might be incomplete" + e);
+        }catch(IOException e){
+            throw new DownloadException("Error accessing socket or local file: "
+                    + e);
+        }finally{
+            try{
+                fileToWrite.close();
+            }catch(IOException e){
+                System.out.println("error closing file!" + e);
+            }
+        }
+    }
+    
+    @Override
+    public void run() {
+        try{
+            //TODO: add 1 to file counter
+            fileToWrite = new FileOutputStream(file);
+            connectToPeer();
+            downloadFile();
+            
+            //TODO: ask server to write to keep log
+            
+            //TODO: In case of exceptions remove file!
+        }catch(FileNotFoundException e){
+            System.out.println("Could not create output file! Error: " + e);
+        }catch(ConnectException e){
+            System.out.println("Host connection error: " + e);
+        }catch(DownloadException e){
+            System.out.println("Error while trying to download the file: " + e);
+        }finally{
+            try{
+                //TODO: Remove 1 from file counter
+                socket.close();
+            }catch(IOException e){
+                System.out.println("error closing socket!" + e);
+            }
+        }
+    }
+}
