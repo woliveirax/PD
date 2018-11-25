@@ -5,16 +5,18 @@
  */
 package Threads;
 
+import java.io.IOException;
+
 public class TestMain {
     
     public static void main(String[] args) {
         
         try{
-            Thread t = new DownloadService("Hello.txt","C:\\Users\\Skully\\Documents","localhost", 6001);
+            Thread t1 = new UploadService("D:\\Documents\\lic_inf\\3ano", 6002);
+            Thread t = new DownloadService("Hello.txt","D:\\Documents\\lic_inf\\3ano\\PD","localhost", 6002);
+            t1.start();
             t.start();
-        }catch(FileException e){
-            System.out.println(e);
-        }catch(DirectoryException e){
+        }catch(IOException | FileException | DirectoryException e){
             System.out.println(e);
         }
     }

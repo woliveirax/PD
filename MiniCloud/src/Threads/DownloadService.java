@@ -91,7 +91,7 @@ public class DownloadService extends Thread {
         
         if(file.exists()){
             throw new FileException("File: \'" + file.getName()
-                    + "already exists!");
+                    + " already exists!");
         }
     }
     
@@ -101,12 +101,16 @@ public class DownloadService extends Thread {
             socket.setSoTimeout(TIMEOUT);
             
         }catch(SocketTimeoutException e){
+            //TODO: erase file
             throw new ConnectException("Connection timeout: " + e);
         }catch(SocketException e){
+            //TODO: erase file
             throw new ConnectException("Socket error: " + e);
         }catch(UnknownHostException e){
+            //TODO: erase file
             throw new ConnectException("Host unknown: " + e);
         }catch(IOException e){
+            //TODO: erase file
             throw new ConnectException("Could not connect to host:" + e);
         }
     }
@@ -128,17 +132,23 @@ public class DownloadService extends Thread {
             while((nbytes = in.read(chunk)) > 0){
                 fileToWrite.write(chunk, 0, nbytes);
             }
-            
+            System.out.println("Client with Request: - Download completed");
         }catch(SocketTimeoutException e){
+            if(file.exists())
+                file.delete();
             throw new DownloadException("Connection timed out!" +
                     " file transfer might be incomplete" + e);
         }catch(IOException e){
+            if(file.exists())
+                file.delete();
             throw new DownloadException("Error accessing socket or local file: "
                     + e);
         }finally{
             try{
                 fileToWrite.close();
             }catch(IOException e){
+                if(file.exists())
+                    file.delete();
                 System.out.println("error closing file!" + e);
             }
         }
@@ -163,8 +173,9 @@ public class DownloadService extends Thread {
             System.out.println("Error while trying to download the file: " + e);
         }finally{
             try{
-                //TODO: Remove 1 from file counter
                 socket.close();
+            }catch(NullPointerException e){
+                System.out.println("Socket is not initialized.");
             }catch(IOException e){
                 System.out.println("error closing socket!" + e);
             }
