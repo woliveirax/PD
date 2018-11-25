@@ -127,7 +127,7 @@ public class GetFileTcpServer {
 //        }        
         
 //        localDirectory = new File(args[1]);
-          localDirectory = new File("D:\\Documents\\lic_inf\\3ano\\PD"); //Joana: Coloquei nome diretamente, dpois vamos ter de alterar
+          localDirectory = new File("C:\\Users\\Skully\\Desktop"); //Joana: Coloquei nome diretamente, dpois vamos ter de alterar
           
         if(!localDirectory.exists()){
            System.out.println("A directoria " + localDirectory + " nao existe!");

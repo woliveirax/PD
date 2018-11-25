@@ -16,8 +16,8 @@ import java.net.UnknownHostException;
  */
 public class GetFileTcpClient {
     public static final int MAX_SIZE = 4000;
-    public static final int TIMEOUT = 5; //segundos
-
+    public static final int TIMEOUT = 5;
+    
     public static void main(String[] args) 
     {
         File localDirectory;
