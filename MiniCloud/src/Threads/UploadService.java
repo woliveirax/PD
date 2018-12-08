@@ -12,9 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-/**
- * @version 1.0
- */
+
 public class UploadService extends Thread {
     private static final int MAX_PACKET_SIZE = 10000;
     private static final int TIMEOUT = 2000;
@@ -29,7 +27,7 @@ public class UploadService extends Thread {
         throws DirectoryException, IOException
     {
         server = new ServerSocket(port, 5);
-        directory = new File(localDirectory.trim());       
+        directory = new File(localDirectory.trim());
         
         if(!directory.exists()){
             throw new DirectoryException("Directory \'" + directory.getPath() 
@@ -80,8 +78,7 @@ public class UploadService extends Thread {
                 return;
             }
             
-            requestedFileInputStream = new FileInputStream(
-                    requestedCanonicalFilePath);
+            requestedFileInputStream = new FileInputStream(requestedCanonicalFilePath);
             System.out.println("File " + requestedCanonicalFilePath 
                     + " opened for reading.");
 
@@ -133,17 +130,8 @@ public class UploadService extends Thread {
         }catch(FileNotFoundException e){
             System.out.println("Could not create output file! Error: " + e);
         }catch(IOException e){
-            System.out.println("Server server error! " +e);
+            System.out.println("Server error! " +e);
             System.out.println("Terminating connection!");
-        }/*finally{
-            try{
-                clientSocket.close();
-            }catch(NullPointerException e){
-                System.out.println("Socket is not initialized.");
-            }
-            catch(IOException e){
-                System.out.println("Error while closing socket!" + e);
-            }
-        }*/
+        }
     }
 }
