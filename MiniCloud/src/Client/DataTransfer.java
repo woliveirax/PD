@@ -5,8 +5,9 @@
  */
 package Client;
 
-public class DataTransfer {
+import java.io.Serializable;
 
+public class DataTransfer implements Serializable {
     private int download;
     private int upload;
     
