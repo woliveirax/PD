@@ -1,7 +1,6 @@
 package Client.WatchDog;
 
 import Client.DataObservable;
-import static com.sun.jmx.mbeanserver.Util.cast;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -40,6 +39,11 @@ public class WatchDog extends Thread{
         }catch(IOException e){
             throw new WatchDogRuntimeException("Error: "+e);
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    static <T> WatchEvent<T> cast(WatchEvent<?> event) {
+        return (WatchEvent<T>)event;
     }
     
     private void register(Path dir) throws IOException {
