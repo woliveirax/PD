@@ -1,11 +1,40 @@
-package GUI_Client;
+package Client.GUI;
 
-public class CloudMainScreen extends javax.swing.JFrame {
+import Exceptions.InvalidDirectoryException;
+import java.io.File;
+import java.util.Observable;
+import java.util.Observer;
+import javax.swing.JFileChooser;
 
+public class CloudMainScreen extends javax.swing.JFrame implements Observer {
+    JFileChooser chooser;
+    
     public CloudMainScreen() {
         initComponents();
+        
     }
-
+    
+    private File getDirectory(String msg)
+            throws InvalidDirectoryException
+    {
+        chooser = new JFileChooser();
+        
+        chooser.setCurrentDirectory(
+                new File(System.getProperty("user.home") + "/Desktop"));
+        
+        chooser.setDialogTitle(msg);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+        {
+            return chooser.getCurrentDirectory();
+        }
+        else
+        {
+            throw new InvalidDirectoryException("Directory is not valid");
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -87,16 +116,18 @@ public class CloudMainScreen extends javax.swing.JFrame {
         treeNode2.add(treeNode3);
         treeNode1.add(treeNode2);
         FilesAvailable.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        FilesAvailable.setName(""); // NOI18N
         FilesAvailable.setOpaque(false);
         FilesAvailable.setRequestFocusEnabled(false);
         jScrollPane1.setViewportView(FilesAvailable);
+        FilesAvailable.getAccessibleContext().setAccessibleName("");
 
         fieldMessage.setColumns(20);
         fieldMessage.setRows(5);
         jScrollPane3.setViewportView(fieldMessage);
 
         btnLogout.setBackground(new java.awt.Color(255, 255, 255));
-        btnLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI_Client/High-contrast-system-log-out.png"))); // NOI18N
+        btnLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/High-contrast-system-log-out.png"))); // NOI18N
         btnLogout.setText("Logout");
         btnLogout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -296,4 +327,12 @@ public class CloudMainScreen extends javax.swing.JFrame {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel titlePanel;
     // End of variables declaration//GEN-END:variables
+
+    
+    //TODO: this needs to do something
+    @Override
+    public void update(Observable o, Object arg) {
+        //TODO: create if statements so we don't update everything when a change is made
+        //So if(updateFileList) updates ONLY the list of files for example
+    }
 }

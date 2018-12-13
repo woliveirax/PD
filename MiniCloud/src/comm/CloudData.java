@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class CloudData implements Serializable {
     private final String user;
-    private ArrayList<File> files;
+    private final ArrayList<File> files;
     
     public CloudData(String username){
         user = username;

@@ -3,12 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Threads;
+package Client.Threads;
 
-import Client.DataObservable;
-import Client.WatchDog.WatchDog;
-import GUI_Client.CloudLogin;
-import java.io.IOException;
+import Client.GUI.CloudLogin;
 
 public class TestMain {
     

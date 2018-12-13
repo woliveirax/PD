@@ -172,9 +172,13 @@
                 <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.editors2.TreeModelEditor">
                   <TreeModel code="FILES&#xa; colors&#xa;  blue&#xa;  violet&#xa;  red&#xa;  yellow&#xa; sports&#xa;  basketball&#xa;  soccer&#xa;  football&#xa;  hockey&#xa; food&#xa;  hot dogs&#xa;  pizza&#xa;  ravioli&#xa;  bananas"/>
                 </Property>
+                <Property name="name" type="java.lang.String" value="" noResource="true"/>
                 <Property name="opaque" type="boolean" value="false"/>
                 <Property name="requestFocusEnabled" type="boolean" value="false"/>
               </Properties>
+              <AccessibilityProperties>
+                <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
+              </AccessibilityProperties>
             </Component>
           </SubComponents>
         </Container>
@@ -199,7 +203,7 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/GUI_Client/High-contrast-system-log-out.png"/>
+              <Image iconType="3" name="/Client/GUI/High-contrast-system-log-out.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Logout"/>
           </Properties>

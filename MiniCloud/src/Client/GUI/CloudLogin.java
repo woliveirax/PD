@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GUI_Client;
+package Client.GUI;
 
 /**
  *
  * @author Skully
  */
-public class FilesTransferHistory extends javax.swing.JFrame {
+public class CloudLogin extends javax.swing.JFrame {
 
     /**
-     * Creates new form FilesTransferHistory
+     * Creates new form CloudLogin2
      */
-    public FilesTransferHistory() {
+    public CloudLogin() {
         initComponents();
     }
 
@@ -27,31 +27,46 @@ public class FilesTransferHistory extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnReturn = new javax.swing.JButton();
+        btnLogin = new javax.swing.JButton();
         loginPanel = new javax.swing.JPanel();
+        labelUsername = new javax.swing.JLabel();
+        labelPassword = new javax.swing.JLabel();
+        fieldUsername = new javax.swing.JTextField();
         btnLeave = new javax.swing.JButton();
         titlePanel = new javax.swing.JPanel();
         labelTitle = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextField1 = new javax.swing.JTextField();
+        fieldPassword = new javax.swing.JPasswordField();
+        btnRegister = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        btnReturn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnReturn.setText("Return");
-        btnReturn.setInheritsPopupMenu(true);
-        btnReturn.addActionListener(new java.awt.event.ActionListener() {
+        btnLogin.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnLogin.setText("Login");
+        btnLogin.setInheritsPopupMenu(true);
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnReturnActionPerformed(evt);
+                btnLoginActionPerformed(evt);
             }
         });
 
         loginPanel.setBackground(new java.awt.Color(200, 210, 255));
         loginPanel.setToolTipText("");
+        loginPanel.setName(""); // NOI18N
+
+        labelUsername.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        labelUsername.setForeground(new java.awt.Color(110, 110, 110));
+        labelUsername.setText("Username");
+
+        labelPassword.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        labelPassword.setForeground(new java.awt.Color(110, 110, 110));
+        labelPassword.setText("Password");
+
+        fieldUsername.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        fieldUsername.setText("Flinstones");
 
         btnLeave.setBackground(new java.awt.Color(255, 255, 255));
         btnLeave.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI_Client/High-contrast-system-log-out.png"))); // NOI18N
+        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/High-contrast-system-log-out.png"))); // NOI18N
         btnLeave.setText("Leave");
         btnLeave.setToolTipText("");
         btnLeave.setInheritsPopupMenu(true);
@@ -64,7 +79,7 @@ public class FilesTransferHistory extends javax.swing.JFrame {
         titlePanel.setBackground(new java.awt.Color(205, 200, 205));
 
         labelTitle.setFont(new java.awt.Font("Verdana", 1, 24)); // NOI18N
-        labelTitle.setText("Files Transfer History");
+        labelTitle.setText("Login");
 
         javax.swing.GroupLayout titlePanelLayout = new javax.swing.GroupLayout(titlePanel);
         titlePanel.setLayout(titlePanelLayout);
@@ -73,7 +88,7 @@ public class FilesTransferHistory extends javax.swing.JFrame {
             .addGroup(titlePanelLayout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(labelTitle)
-                .addContainerGap(158, Short.MAX_VALUE))
+                .addContainerGap(314, Short.MAX_VALUE))
         );
         titlePanelLayout.setVerticalGroup(
             titlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -83,22 +98,33 @@ public class FilesTransferHistory extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextField1.setEditable(false);
-        jScrollPane1.setViewportView(jTextField1);
+        fieldPassword.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        fieldPassword.setText("jPasswordField1");
+        fieldPassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fieldPasswordActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout loginPanelLayout = new javax.swing.GroupLayout(loginPanel);
         loginPanel.setLayout(loginPanelLayout);
         loginPanelLayout.setHorizontalGroup(
             loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(loginPanelLayout.createSequentialGroup()
-                .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, loginPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, loginPanelLayout.createSequentialGroup()
+                .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(loginPanelLayout.createSequentialGroup()
                         .addComponent(titlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnLeave)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnLeave))
+                    .addGroup(loginPanelLayout.createSequentialGroup()
+                        .addGap(55, 55, 55)
+                        .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(labelUsername)
+                            .addComponent(labelPassword))
+                        .addGap(47, 47, 47)
+                        .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(fieldUsername)
+                            .addComponent(fieldPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         loginPanelLayout.setVerticalGroup(
@@ -108,10 +134,25 @@ public class FilesTransferHistory extends javax.swing.JFrame {
                 .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnLeave, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(titlePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGap(31, 31, 31)
+                .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelUsername)
+                    .addComponent(fieldUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(33, 33, 33)
+                .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labelPassword)
+                    .addComponent(fieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
+
+        btnRegister.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnRegister.setInheritsPopupMenu(true);
+        btnRegister.setLabel("Register");
+        btnRegister.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegisterActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -120,32 +161,53 @@ public class FilesTransferHistory extends javax.swing.JFrame {
             .addComponent(loginPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnReturn)
+                .addComponent(btnRegister)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(loginPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                .addComponent(btnReturn)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnLogin)
+                    .addComponent(btnRegister))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        loginPanel.getAccessibleContext().setAccessibleName("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
         CloudMainScreen mainScreen = new  CloudMainScreen();
         this.setVisible(false);
         mainScreen.setVisible(true);
-    }//GEN-LAST:event_btnReturnActionPerformed
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_btnLeaveActionPerformed
+
+    private void fieldPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldPasswordActionPerformed
+        // TODO add your handling code here:
+        //CloudRegister registerScreen = new CloudRegister();
+        this.setVisible(false);
+        //registerScreen.setVisible(true);
+    }//GEN-LAST:event_fieldPasswordActionPerformed
+
+    private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
+        // TODO add your handling code here:
+        CloudRegister register = new CloudRegister();
+        this.setVisible(false);
+        register.setVisible(true);
+
+    }//GEN-LAST:event_btnRegisterActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,30 +226,34 @@ public class FilesTransferHistory extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FilesTransferHistory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CloudLogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FilesTransferHistory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CloudLogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FilesTransferHistory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CloudLogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FilesTransferHistory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CloudLogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FilesTransferHistory().setVisible(true);
+                new CloudLogin().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLeave;
-    private javax.swing.JButton btnReturn;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton btnLogin;
+    private javax.swing.JButton btnRegister;
+    private javax.swing.JPasswordField fieldPassword;
+    private javax.swing.JTextField fieldUsername;
+    private javax.swing.JLabel labelPassword;
     private javax.swing.JLabel labelTitle;
+    private javax.swing.JLabel labelUsername;
     private javax.swing.JPanel loginPanel;
     private javax.swing.JPanel titlePanel;
     // End of variables declaration//GEN-END:variables

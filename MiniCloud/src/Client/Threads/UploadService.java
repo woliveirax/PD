@@ -1,4 +1,4 @@
-package Threads;
+package Client.Threads;
 
 import java.io.BufferedReader;
 import java.io.File;
