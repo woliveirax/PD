@@ -5,6 +5,8 @@
  */
 package Threads;
 
+import Client.DataObservable;
+import Client.WatchDog.WatchDog;
 import GUI_Client.CloudLogin;
 import java.io.IOException;
 
@@ -14,13 +16,5 @@ public class TestMain {
         
         CloudLogin interfaceStartUp = new CloudLogin();
         interfaceStartUp.setVisible(true);
-//        try{
-//            Thread t1 = new UploadService("D:\\Documents\\lic_inf\\3ano", 6002);
-//            Thread t = new DownloadService("Hello.txt","D:\\Documents\\lic_inf\\3ano\\PD","localhost", 6002);
-//            t1.start();
-//            t.start();
-//        }catch(IOException | FileException | DirectoryException e){
-//            System.out.println(e);
-//        }
     }
 }
