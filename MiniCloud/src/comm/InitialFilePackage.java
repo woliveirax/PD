@@ -1,20 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package comm;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class InitialFilePackage {
-    final private File[] files;
+    final private ArrayList<FileData> files;
     
     public InitialFilePackage(String directory){
-        files = new File(directory).listFiles();
+        files = new ArrayList<>();
+        
+        File[] temp = new File(directory).listFiles();
+        
+        for(File file : temp)
+            files.add(new FileData(file.getName(), file.length()));
     }
-
-    public File[] getFiles() {
+    
+    public ArrayList<FileData> getFiles() {
         return files;
     }
 }
