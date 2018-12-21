@@ -1,5 +1,6 @@
 package Server;
 
+import comm.AuthPackets.LoginAccepted;
 import comm.LoginInfo;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -26,55 +27,48 @@ public class ClientHandler extends Thread{
         Object toreturn; 
         
         try{//initialize stream reader and writer
-            in = new ObjectInputStream(s.getInputStream());
             out = new ObjectOutputStream(s.getOutputStream());
+            in = new ObjectInputStream(s.getInputStream());
         }catch(IOException e){
             e.printStackTrace();
-            return;
-        }finally{
+            
             try{
                 s.close();
             }catch(IOException ex){
                 ex.printStackTrace();
-            }        
+            }
+            
+            return;
         }
-        
+           
         while (true)  
         { 
-            try { 
+            try {
                 // receive the answer from client 
                 received = in.readObject();
                 
                 if(received instanceof String){
                     System.out.println((String)received);
                     
-                    if(received.equals("Exit")) 
+                    if(((String)received).equalsIgnoreCase("exit")) 
                     {  
                         System.out.println("Client " + s + " sends exit..."); 
-                        System.out.println("Closing this connection."); 
                         s.close(); 
                         System.out.println("Connection closed"); 
                         break; 
                     }
                 }else if(received instanceof LoginInfo){//TODO: compare to all object types
                     //TODO: check in DATABASE IF USER HAS VALID CREDENCIALS
-                    out.writeObject(new String("Login Accepted"));
+                    out.writeObject(new LoginAccepted());
+                    out.flush();
                     System.out.println("Login accepted");
                 }
-                
             } catch (IOException e) { 
-                e.printStackTrace(); 
+                System.out.println("IO"+e);
+                break;
             }catch (ClassNotFoundException e){
-                e.printStackTrace();
-            }finally{
-                try{ 
-                    // closing resources 
-                    this.in.close(); 
-                    this.out.close(); 
-
-                }catch(IOException e){ 
-                    e.printStackTrace(); 
-                } 
+                System.out.println("CNF"+e);
+                break;
             }
         }
     }

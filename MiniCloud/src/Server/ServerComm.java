@@ -35,7 +35,7 @@ public class ServerComm {
         
         try {
             // BIND TO THE SERVICE PORT
-            server = new ServerSocket(0);
+            server = new ServerSocket(6001);
             System.out.println ("Server started, port: "+server.getLocalPort());
             
             // LOOP INDEFINITELY, ACCEPTING CLIENTS
