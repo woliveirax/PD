@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class UserData implements Serializable {
     private File downloadPath; //TODO: add file verification
@@ -14,7 +15,7 @@ public class UserData implements Serializable {
     
     //TODO: Add methods to handle these calls
     private final DataTransfer fileTransfers;
-    private ArrayList<CloudData> fileList;
+    private List<CloudData> fileList;
 
     public UserData() {
         this.fileTransfers = new DataTransfer();
@@ -62,7 +63,7 @@ public class UserData implements Serializable {
     }
     
     public ArrayList<CloudData> getFileList() {
-        return fileList;
+        return (ArrayList<CloudData>) fileList;
     }
     
     public void setDownloadPath(File file) throws InvalidDirectoryException {

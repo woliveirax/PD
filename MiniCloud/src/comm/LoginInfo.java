@@ -5,7 +5,9 @@
  */
 package comm;
 
-public class LoginInfo {
+import java.io.Serializable;
+
+public class LoginInfo implements Serializable {
     private final String username;
     private final String password;
     private final ClientConnection connection;
@@ -27,6 +29,10 @@ public class LoginInfo {
     
     public int getKeepAlivePort(){
         return connection.getKeepAlivePort();
+    }
+    
+    public int getNotificationPort(){
+        return connection.getNotificationPort();
     }
     
     public int getTransferPort(){

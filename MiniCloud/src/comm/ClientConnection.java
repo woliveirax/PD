@@ -5,13 +5,17 @@
  */
 package comm;
 
-public class ClientConnection {
+import java.io.Serializable;
+
+public class ClientConnection implements Serializable {
     int keepAlivePort;
     int transferPort;
+    int notificationPort;
 
-    public ClientConnection(int keepAlivePort, int transferPort) {
+    public ClientConnection(int keepAlivePort, int transferPort, int notificationPort) {
         this.keepAlivePort = keepAlivePort;
         this.transferPort = transferPort;
+        this.notificationPort = notificationPort;
     }
 
     public int getKeepAlivePort() {
@@ -20,5 +24,9 @@ public class ClientConnection {
 
     public int getTransferPort() {
         return transferPort;
+    }
+    
+    public int getNotificationPort(){
+        return notificationPort;
     }
 }
