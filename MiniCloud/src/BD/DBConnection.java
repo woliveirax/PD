@@ -1,11 +1,16 @@
 package BD;
 
+import Client.UserData;
 import com.mysql.cj.xdevapi.Result;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,6 +90,116 @@ public class DBConnection {
             throw e;
         }
     }
+    
+    public Set<Integer> getLoggedUsers() throws SQLException{
+        String sql = "SELECT * FROM AuthUsers";
+        Set<Integer> loggedIds = new HashSet<>();
+        
+        try{
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            while(rs.next()){
+                loggedIds.add(rs.getInt("userId"));
+            }
+            
+            rs.close();
+        }catch(SQLException e){
+            throw e;
+        }
+        
+        return loggedIds;
+    }
+    
+    public Set<Integer> getRegisteredUsers() throws SQLException{
+        String sql = "SELECT idUsers FROM Users";
+        Set<Integer> usersIds = new HashSet<>();
+        
+        try{
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            while(rs.next()){
+                usersIds.add(rs.getInt("idUsers"));
+            }
+            
+            rs.close();
+        }catch(SQLException e){
+            throw e;
+        }
+        
+        return usersIds;
+    }
+    
+    public String getUserName(int userID) throws SQLException{
+        String sql = "SELECT * FROM Users WHERE idUsers = " + userID;
+        String username;
+        
+        try{
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            username = rs.getString("username");
+            
+            rs.close();
+        }catch(SQLException e){
+            throw e;
+        }
+        
+        return username;
+    }
+    
+    public ArrayList<String> getFilesFromUser(int userID)throws SQLException{
+        String sql = "SELECT names FROM Files WHERE AuthUserId = " + userID;
+        ArrayList<String> files = new ArrayList<>();
+        
+        try{
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            while(rs.next()){
+                files.add(rs.getString("name"));
+            }
+            
+            rs.close();
+        }catch(SQLException e){
+            throw e;
+        }
+        
+        return files;
+    }
+    
+    public ArrayList<TransferInfo> getTransfersRelatedToUser (int userID) throws SQLException{
+        String sql = "SELECT * FROM History WHERE source = " + userID + " OR destination = " + userID;
+        ArrayList<TransferInfo> transfers = new ArrayList<>();
+        String sourceName, destName;
+        try{
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            while(rs.next()){
+                sourceName = getUserName(rs.getInt("source"));
+                destName = getUserName(rs.getInt("destination"));
+                
+                transfers.add(new TransferInfo(rs.getDate("date"), sourceName, destName, rs.getString("filename")));
+            }
+            
+            rs.close();
+        }catch(SQLException e){
+            throw e;
+        }
+        
+        return transfers;
+    }
+   
+    public void addLoggedUser(int userID) throws SQLException{
+        //Sting sql = "INSERT "
+    }
+    
+    //public void addUser()
+    
+    //public void addFile()
+    
+    //public void removeFile()
+    
+    //public void updateFile()
+    
+    //public void addHistoryRegister
     
     //TODO: remove this main
     public static void main(String[] args) {
