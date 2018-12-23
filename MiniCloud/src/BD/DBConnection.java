@@ -1,7 +1,5 @@
 package BD;
 
-import Client.UserData;
-import com.mysql.cj.xdevapi.Result;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -9,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -75,7 +72,11 @@ public class DBConnection {
     }
     
     public void createDatabase() throws SQLException{
-        executeQuery(DBScripts.CREATION_SCRIPT);
+        executeUpdate(DBScripts.CREATE_DATABASE);
+        executeUpdate(DBScripts.CREATE_TABLE_USERS);
+        executeUpdate(DBScripts.CREATE_TABLE_AUTH_USERS);
+        executeUpdate(DBScripts.CREATE_TABLE_FILES);
+        executeUpdate(DBScripts.CREATE_TABLE_HISTORY);
     }
     
     public boolean databaseExists() throws SQLException{
@@ -86,6 +87,14 @@ public class DBConnection {
     public void executeQuery(String query) throws SQLException{
         try{
             stmt.execute(query);
+        }catch(SQLException e){
+            throw e;
+        }
+    }
+    
+        public void executeUpdate(String query) throws SQLException{
+        try{
+            stmt.executeUpdate(query);
         }catch(SQLException e){
             throw e;
         }
