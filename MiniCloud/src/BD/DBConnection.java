@@ -1,21 +1,19 @@
 package BD;
 
-import comm.FileData;
+import Exceptions.UserException;
+import comm.ClientConnection;
+import comm.LoginInfo;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DBConnection {
-    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private String dbUrl;
-    
+public class DBConnection implements DBScripts, DatabaseConstants {    
     //Database credentials
     private String username = "admin";
     private String password = "admin";
@@ -27,12 +25,15 @@ public class DBConnection {
     public DBConnection(String user, String pass, String ip, int port) 
             throws SQLException, ClassNotFoundException
     {
+        username = user;
+        password = pass;
+        
         try {
             //Register JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
             
             //Build DB URL Connection
-            dbUrl = "jdbc:mysql://" + ip + ":" + port + "/";
+            String dbUrl = "jdbc:mysql://" + ip + ":" + port + "/";
             
             //Open a connection
             conn = DriverManager.getConnection(dbUrl, username, password);
@@ -72,35 +73,20 @@ public class DBConnection {
         } catch (SQLException e) {}
     }
     
-    public void createDatabase() throws SQLException{
-        executeUpdate(DBScripts.CREATE_DATABASE);
-        executeUpdate(DBScripts.CREATE_TABLE_USERS);
-        executeUpdate(DBScripts.CREATE_TABLE_AUTH_USERS);
-        executeUpdate(DBScripts.CREATE_TABLE_FILES);
-        executeUpdate(DBScripts.CREATE_TABLE_HISTORY);
+    private void createDatabase() throws SQLException{
+        stmt.executeUpdate(DBScripts.CREATE_DATABASE);
+        stmt.executeUpdate(DBScripts.CREATE_TABLE_USERS);
+        stmt.executeUpdate(DBScripts.CREATE_TABLE_AUTH_USERS);
+        stmt.executeUpdate(DBScripts.CREATE_TABLE_FILES);
+        stmt.executeUpdate(DBScripts.CREATE_TABLE_HISTORY);
     }
     
-    public boolean databaseExists() throws SQLException{
-        executeQuery(DBScripts.DOES_DB_EXISTS);
+    private boolean databaseExists() throws SQLException{
+        stmt.executeQuery(DOES_DB_EXISTS);
         return stmt.getResultSet().next();
     }
     
-    public void executeQuery(String query) throws SQLException{
-        try{
-            stmt.execute(query);
-        }catch(SQLException e){
-            throw e;
-        }
-    }
-    
-        public void executeUpdate(String query) throws SQLException{
-        try{
-            stmt.executeUpdate(query);
-        }catch(SQLException e){
-            throw e;
-        }
-    }
-    
+    /*
     public Set<Integer> getLoggedUsers() throws SQLException{
         String sql = "SELECT * FROM AuthUsers";
         Set<Integer> loggedIds = new HashSet<>();
@@ -199,10 +185,61 @@ public class DBConnection {
         
         return transfers;
     }
-   
-    public void addLoggedUser(int userID) throws SQLException{
-        //Sting sql = "INSERT "
+   */
+    public User getUser(String username) 
+            throws SQLException, UserException 
+    {
+        PreparedStatement st = conn.prepareStatement("SELECT * FROM miniclouddb.Users WHERE username = ?;");
+        st.setString(1, username);
+        st.executeQuery();
+        
+        ResultSet result = st.getResultSet();
+        
+        if(result.next()){
+            return new User(result.getString(USERS_USERNAME), 
+                    result.getString(USERS_PASSWORD),
+                    result.getInt(USERS_ID));
+        }
+        throw new UserException("User does not exist!");
     }
+    
+    public void registerUser(String username, String password) 
+            throws UserException, SQLException
+    {
+        try{
+            PreparedStatement st = conn.prepareStatement(INSERT_USER);
+            st.setString(1, username);
+            st.setString(2, password);
+        
+            st.executeUpdate();
+        }catch(SQLIntegrityConstraintViolationException e){
+            throw new UserException("User Already exists!");
+        }
+    }
+    
+    public void userLogin(LoginInfo info, String ip)
+            throws UserException, SQLException
+    {
+        try{
+            User user = getUser(info.getUsername());
+            if(!user.getPassword().equals(info.getPassword())){
+                throw new UserException("Wrong password!");
+            }
+            
+            PreparedStatement st = conn.prepareStatement(AUTHENTICATE_USER);
+            st.setInt(1, user.getId());
+            st.setInt(2, info.getKeepAlivePort());
+            st.setInt(3, info.getTransferPort());
+            st.setInt(4, info.getNotificationPort());
+            st.setString(5, ip);
+        
+            st.executeUpdate();
+        }catch(SQLIntegrityConstraintViolationException e){
+            throw new UserException("Already logged in somewhere! please close the other instance and try again");
+        }
+    }
+    
+    
     
     //public void addUser()
     
@@ -218,12 +255,16 @@ public class DBConnection {
     public static void main(String[] args) {
         try {
             DBConnection conn = new DBConnection("admin", "admin", "project-soralis.pro",55532);
-        
-        
+            //conn.registerUser("wallace", "abcd");
+            
+            LoginInfo info = new LoginInfo("wallace", "abcd", new ClientConnection(1, 2, 3));
+            conn.userLogin(info, "192.168.1.299");
         
         } catch (SQLException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UserException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
         
