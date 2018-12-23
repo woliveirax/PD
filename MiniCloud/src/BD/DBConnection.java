@@ -1,7 +1,6 @@
 package BD;
 
-import Client.UserData;
-import com.mysql.cj.xdevapi.Result;
+import comm.FileData;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -9,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -111,14 +109,14 @@ public class DBConnection {
     }
     
     public Set<Integer> getRegisteredUsers() throws SQLException{
-        String sql = "SELECT idUsers FROM Users";
+        String sql = "SELECT username FROM Users";
         Set<Integer> usersIds = new HashSet<>();
         
         try{
             ResultSet rs = stmt.executeQuery(sql);
             
             while(rs.next()){
-                usersIds.add(rs.getInt("idUsers"));
+                usersIds.add(rs.getInt("idUser"));
             }
             
             rs.close();
@@ -130,7 +128,7 @@ public class DBConnection {
     }
     
     public String getUserName(int userID) throws SQLException{
-        String sql = "SELECT * FROM Users WHERE idUsers = " + userID;
+        String sql = "SELECT username FROM Users WHERE idUser = " + userID;
         String username;
         
         try{
@@ -146,15 +144,15 @@ public class DBConnection {
         return username;
     }
     
-    public ArrayList<String> getFilesFromUser(int userID)throws SQLException{
-        String sql = "SELECT names FROM Files WHERE AuthUserId = " + userID;
-        ArrayList<String> files = new ArrayList<>();
+    public ArrayList<FileData> getFilesFromUser(String username)throws SQLException{
+        String sql = "SELECT * FROM Files, Users WHERE Files.AuthUserId = Users.idUser AND Users.username = "+ username; 
+        ArrayList<FileData> files = new ArrayList<>();
         
         try{
             ResultSet rs = stmt.executeQuery(sql);
             
             while(rs.next()){
-                files.add(rs.getString("name"));
+                files.add( new FileData(rs.getString("name"), rs.getInt("AuthUserId")));
             }
             
             rs.close();
@@ -165,13 +163,16 @@ public class DBConnection {
         return files;
     }
     
-    public ArrayList<TransferInfo> getTransfersRelatedToUser (int userID) throws SQLException{
-        String sql = "SELECT * FROM History WHERE source = " + userID + " OR destination = " + userID;
+    public ArrayList<TransferInfo> getTransfersRelatedToUser (String username) throws SQLException{
+        String sql = "SELECT * FROM History as h, Users as u"
+                + "WHERE h.source = u.idUser AND u.username = " 
+                + username + " OR h.destination = u.idUser AND u.username = " + username;
         ArrayList<TransferInfo> transfers = new ArrayList<>();
         String sourceName, destName;
         try{
             ResultSet rs = stmt.executeQuery(sql);
             
+            //TODO: Source and Destination must be converted to string
             while(rs.next()){
                 sourceName = getUserName(rs.getInt("source"));
                 destName = getUserName(rs.getInt("destination"));
