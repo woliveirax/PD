@@ -73,7 +73,11 @@ public class DBConnection {
     }
     
     public void createDatabase() throws SQLException{
-        executeQuery(DBScripts.CREATION_SCRIPT);
+        executeUpdate(DBScripts.CREATE_DATABASE);
+        executeUpdate(DBScripts.CREATE_TABLE_USERS);
+        executeUpdate(DBScripts.CREATE_TABLE_AUTH_USERS);
+        executeUpdate(DBScripts.CREATE_TABLE_FILES);
+        executeUpdate(DBScripts.CREATE_TABLE_HISTORY);
     }
     
     public boolean databaseExists() throws SQLException{
@@ -84,6 +88,14 @@ public class DBConnection {
     public void executeQuery(String query) throws SQLException{
         try{
             stmt.execute(query);
+        }catch(SQLException e){
+            throw e;
+        }
+    }
+    
+        public void executeUpdate(String query) throws SQLException{
+        try{
+            stmt.executeUpdate(query);
         }catch(SQLException e){
             throw e;
         }
