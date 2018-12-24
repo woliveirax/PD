@@ -4,7 +4,6 @@ import BD.ConnectedUser;
 import BD.DBConnection;
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
-import comm.CloudData;
 import comm.InitialFilePackage;
 import comm.KeepAlive;
 import comm.LoginInfo;
@@ -21,8 +20,6 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientHandler extends Thread {
 
@@ -36,10 +33,10 @@ public class ClientHandler extends Thread {
 
     private int TIMEOUT = 5000;
 
-    public ClientHandler(Socket s, ServerObservable serverObs) {
+    public ClientHandler(Socket s, ServerObservable serverObs, DBConnection db) {
         this.s = s;
         this.serverObs = serverObs;
-
+        DB = db;
         CONTINUE = true;
     }
 
@@ -187,8 +184,14 @@ public class ClientHandler extends Thread {
 
                 } else if (received instanceof LoginInfo) {//TODO: compare to all object types
                     //TODO: check in DATABASE IF USER HAS VALID CREDENCIALS
+                    try{
+                        DB.userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
+                    }catch(UserException | SQLException e){
+                        writeObject(e);
+                    }
+                    
                     writeObject(new LoginAccepted());
-                    System.out.println("Login accepted");
+                    System.out.println("Login accepted"); 
                     username = ((LoginInfo) received).getUsername();
                     serverObs.addLoggedClient(username);
                     serverObs.addLoggedThread(this);
