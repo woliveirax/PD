@@ -32,6 +32,13 @@ public class UploadService extends Thread {
         observable = obs;
         
         server = new ServerSocket(0, 5);
+    }
+    
+    public int getPort(){
+        return server.getLocalPort();
+    }
+    
+    public void setDirectory() throws DirectoryException{
         directory = observable.getUploadPath();
         
         if(!directory.exists()){
@@ -48,10 +55,6 @@ public class UploadService extends Thread {
             throw new DirectoryException("Can not write to: \'" + 
                     directory.getPath() + "\' check permissions!");
         }
-    }
-    
-    public int getPort(){
-        return server.getLocalPort();
     }
     
     private void HandleRequest(Socket socket)

@@ -45,7 +45,7 @@ public class DataObservable extends Observable {
             comm.start();
             keepAlive.start();
             
-        }catch (DirectoryException | WatchDogException ex) {
+        }catch (WatchDogException ex) {
             throw ex;
         }
     }
