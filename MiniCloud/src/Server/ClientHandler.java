@@ -7,6 +7,7 @@ import comm.InitialFilePackage;
 import comm.KeepAlive;
 import comm.LoginInfo;
 import comm.RefreshData;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -48,32 +49,31 @@ public class ClientHandler extends Thread {
 
     private void createDatagramAndSendIt(ConnectedUser receiver,String msg){
         
-            DatagramSocket dSckt = null;
-            DatagramPacket dPkt = null;
-
-            try {
-                dSckt = new DatagramSocket();
-                dPkt = new DatagramPacket(msg.getBytes(), msg.length(), InetAddress.getByName(receiver.getIp()), receiver.getPort());
-                dSckt.send(dPkt);
-
-            } catch (UnknownHostException e) {
-                try {
-                    dPkt = new DatagramPacket(e.toString().getBytes(), e.toString().length(), InetAddress.getByName(receiver.getIp()), receiver.getPort());
-                } catch (UnknownHostException ex) {
-                }
-                try {
-                    if (dSckt != null) {
-                        dSckt.send(dPkt);
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-            } catch (SocketException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        DatagramSocket dSckt = null;
+        DatagramPacket dPkt = null;
+        
+        try {
+            
+            ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bStream);
+            
+            out.writeObject(msg);
+            out.flush();
+            out.close();
+            
+            dSckt = new DatagramSocket();
+            dPkt = new DatagramPacket(bStream.toByteArray(), bStream.size(), InetAddress.getByName(receiver.getIp()), receiver.getKeepAlivePort());
+            dSckt.send(dPkt);
+            
+            //TODO: recebe o pacote com timeout!
+            
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     private void sendPrivateMsg(String msg, String dest_name) {
@@ -131,8 +131,10 @@ public class ClientHandler extends Thread {
             }
             //sends the Msg via UDP to the users from other servers
             for(ConnectedUser receiver : outsideUsers){ //Sends UDP msg
+                System.out.println("Envia UDP para: " + receiver);
                  createDatagramAndSendIt(receiver,msg);
             }
+            
             //sends the Msg via TCP to the logged users to this server
             for (int i = 0; i < serverObs.getLoggedUserThreads().size(); i++) {
                 if (serverObs.getLoggedUserThreads().get(i).username.compareTo(username) != 0) {

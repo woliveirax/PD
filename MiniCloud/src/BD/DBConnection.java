@@ -334,7 +334,8 @@ public class DBConnection implements DBScripts, DatabaseConstants {
                 ConnectedUser user = new ConnectedUser(
                         rs.getString("username"),
                         rs.getString("ipAddress"),
-                        rs.getInt("transferPort"));
+                        rs.getInt("transferPort"),
+                        rs.getInt("keepAlivePort"));
 
                 connectedUsers.add(user);
             }
@@ -357,7 +358,8 @@ public class DBConnection implements DBScripts, DatabaseConstants {
                 ConnectedUser user = new ConnectedUser(
                         rs.getString("username"),
                         rs.getString("ipAddress"),
-                        rs.getInt("transferPort"));
+                        rs.getInt("transferPort"),
+                        rs.getInt("keepAlivePort"));
 
                 return user;
             }
@@ -446,8 +448,8 @@ public class DBConnection implements DBScripts, DatabaseConstants {
     public static void main(String[] args) {
         try {
             DBConnection conn = new DBConnection("admin", "admin", "project-soralis.pro", 55532);
-            //conn.registerUser("wallace", "abcd");
-            //conn.registerUser("joana", "1234");
+            conn.registerUser("wallace", "abcd");
+            conn.registerUser("joana", "1234");
 
             //LoginInfo info = new LoginInfo("wallace", "abcd", new ClientConnection(1, 2, 3));
             //conn.userLogin(info, "192.168.1.299");
@@ -463,14 +465,14 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             //System.out.println(conn.getUploadHistory("wallace"));
             //conn.setStrikes("j", 3);
             //System.out.println(conn.getStrikes("joana"));
-            System.out.println(conn.getAuthenticatedUsers());
+//            System.out.println(conn.getAuthenticatedUsers());
+//
+//            ArrayList<CloudData> x = conn.getAllUsersData();
 
-            ArrayList<CloudData> x = conn.getAllUsersData();
-
-            for (CloudData user : x) {
-                System.out.println(user.getUser());
-                System.out.println(user.getFiles());
-            }
+//            for (CloudData user : x) {
+//                System.out.println(user.getUser());
+//                System.out.println(user.getFiles());
+//            }
 
         } catch (SQLException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);

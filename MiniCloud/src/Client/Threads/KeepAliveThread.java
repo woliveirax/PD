@@ -28,7 +28,7 @@ public class KeepAliveThread extends Thread {
     }
     
     public int getPort(){
-        return socket.getPort();
+        return socket.getLocalPort();
     }
 
     public void setCONTINUE(boolean CONTINUE) {
@@ -65,7 +65,7 @@ public class KeepAliveThread extends Thread {
     public void run() {
         byte[] buffer = new byte[BUFFER_SIZE];
         DatagramPacket packet = new DatagramPacket(buffer, BUFFER_SIZE);
-
+        
         while(CONTINUE){
             try{
                 socket.receive(packet);

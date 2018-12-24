@@ -3,14 +3,16 @@ package BD;
 public class ConnectedUser {
     private final String username;
     private final String ip;
-    private final int port;
+    private final int transferPort;
+    private final int keepAlivePort;
 
-    public ConnectedUser(String username, String ip, int port) {
+    public ConnectedUser(String username, String ip, int transferPort, int keepAlivePort) {
         this.username = username;
         this.ip = ip;
-        this.port = port;
+        this.transferPort = transferPort;
+        this.keepAlivePort = keepAlivePort;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -19,12 +21,16 @@ public class ConnectedUser {
         return ip;
     }
 
-    public int getPort() {
-        return port;
+    public int getTransferPort() {
+        return transferPort;
+    }
+
+    public int getKeepAlivePort() {
+        return keepAlivePort;
     }
 
     @Override
     public String toString() {
-        return "user: " + username + "; ip: {" + ip + "}, port: " + port;
+        return "user: " + username + "; ip: {" + ip + "}, keepalivePort: " + keepAlivePort;
     }
 }

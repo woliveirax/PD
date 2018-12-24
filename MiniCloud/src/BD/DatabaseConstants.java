@@ -3,8 +3,8 @@ package BD;
 public interface DatabaseConstants {
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     
-    final static String GET_LOGGED_USERS = "SELECT username, ipAddress, transferPort FROM miniclouddb.users, miniclouddb.authusers WHERE userId = idUser;";
-    final static String GET_LOGGED_USER_BY_NAME = "SELECT username, ipAddress, transferPort FROM miniclouddb.users, miniclouddb.authusers WHERE userId = idUser AND username = ?;";
+    final static String GET_LOGGED_USERS = "SELECT username, ipAddress, transferPort,keepAlivePort FROM miniclouddb.users, miniclouddb.authusers WHERE userId = idUser;";
+    final static String GET_LOGGED_USER_BY_NAME = "SELECT username, ipAddress, transferPort, keepAlivePort FROM miniclouddb.users, miniclouddb.authusers WHERE userId = idUser AND username = ?;";
     
     final static String GET_STRIKES = "SELECT strikes FROM miniclouddb.AuthUsers, miniclouddb.Users WHERE userId = idUser AND username = ?;";
     final static String SET_STRIKES = "UPDATE miniclouddb.AuthUsers, miniclouddb.Users SET strikes = ? WHERE userId = idUser AND username = ?;";
