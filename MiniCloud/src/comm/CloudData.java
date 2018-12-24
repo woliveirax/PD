@@ -7,10 +7,16 @@ import java.util.ListIterator;
 
 public class CloudData implements Serializable {
     private final String user;
+    private final String ip;
+    private final int transferPort;
+    
     private ArrayList<FileData> files;
     
-    public CloudData(String username){
-        user = username;
+    public CloudData(String user, String ip, int transferPort){
+        this.user = user;
+        this.ip = ip;
+        this.transferPort = transferPort;
+        
         files = new ArrayList<>();
     }
     

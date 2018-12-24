@@ -1,15 +1,22 @@
 package BD;
 
+import Exceptions.FileException;
 import Exceptions.UserException;
 import comm.ClientConnection;
+import comm.CloudData;
+import comm.FileData;
 import comm.LoginInfo;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,7 +27,6 @@ public class DBConnection implements DBScripts, DatabaseConstants {
     
     //Connection
     private Connection conn;
-    private Statement stmt;
     
     public DBConnection(String user, String pass, String ip, int port) 
             throws SQLException, ClassNotFoundException
@@ -41,7 +47,7 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             System.out.println("Connection to the database established!");
             
             //Execute a query
-            stmt = conn.createStatement();
+            Statement stmt = conn.createStatement();
             
             if(!databaseExists()){
                 System.out.println("Database does not exists!\n creating...");
@@ -56,16 +62,11 @@ public class DBConnection implements DBScripts, DatabaseConstants {
     }
     
     public boolean isConnected() throws SQLException {//TODO: verify this validation
+        Statement stmt = conn.createStatement();
         return conn.isValid(2) && !stmt.isClosed();
     }
     
     public void shutdown(){
-        try {
-            if (stmt != null) {
-                stmt.close();
-            }
-        } catch (SQLException e) {}
-        
         try {
             if (conn != null) {
                 conn.close();
@@ -74,122 +75,26 @@ public class DBConnection implements DBScripts, DatabaseConstants {
     }
     
     private void createDatabase() throws SQLException{
-        stmt.executeUpdate(DBScripts.CREATE_DATABASE);
-        stmt.executeUpdate(DBScripts.CREATE_TABLE_USERS);
-        stmt.executeUpdate(DBScripts.CREATE_TABLE_AUTH_USERS);
-        stmt.executeUpdate(DBScripts.CREATE_TABLE_FILES);
+        Statement stmt = conn.createStatement();
+        
+        stmt.executeUpdate(CREATE_DATABASE);
+        stmt.executeUpdate(CREATE_TABLE_USERS);
+        stmt.executeUpdate(CREATE_TABLE_AUTH_USERS);
+        stmt.executeUpdate(CREATE_TABLE_FILES);
         stmt.executeUpdate(DBScripts.CREATE_TABLE_HISTORY);
     }
     
     private boolean databaseExists() throws SQLException{
+        Statement stmt = conn.createStatement();
+        
         stmt.executeQuery(DOES_DB_EXISTS);
         return stmt.getResultSet().next();
     }
     
-    /*
-    public Set<Integer> getLoggedUsers() throws SQLException{
-        String sql = "SELECT * FROM AuthUsers";
-        Set<Integer> loggedIds = new HashSet<>();
-        
-        try{
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while(rs.next()){
-                loggedIds.add(rs.getInt("userId"));
-            }
-            
-            rs.close();
-        }catch(SQLException e){
-            throw e;
-        }
-        
-        return loggedIds;
-    }
-    
-    public Set<Integer> getRegisteredUsers() throws SQLException{
-        String sql = "SELECT username FROM Users";
-        Set<Integer> usersIds = new HashSet<>();
-        
-        try{
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while(rs.next()){
-                usersIds.add(rs.getInt("idUser"));
-            }
-            
-            rs.close();
-        }catch(SQLException e){
-            throw e;
-        }
-        
-        return usersIds;
-    }
-    
-    public String getUserName(int userID) throws SQLException{
-        String sql = "SELECT username FROM Users WHERE idUser = " + userID;
-        String username;
-        
-        try{
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            username = rs.getString("username");
-            
-            rs.close();
-        }catch(SQLException e){
-            throw e;
-        }
-        
-        return username;
-    }
-    
-    public ArrayList<FileData> getFilesFromUser(String username)throws SQLException{
-        String sql = "SELECT * FROM Files, Users WHERE Files.AuthUserId = Users.idUser AND Users.username = "+ username; 
-        ArrayList<FileData> files = new ArrayList<>();
-        
-        try{
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while(rs.next()){
-                files.add( new FileData(rs.getString("name"), rs.getInt("AuthUserId")));
-            }
-            
-            rs.close();
-        }catch(SQLException e){
-            throw e;
-        }
-        
-        return files;
-    }
-    
-    public ArrayList<TransferInfo> getTransfersRelatedToUser (String username) throws SQLException{
-        String sql = "SELECT * FROM History as h, Users as u"
-                + "WHERE h.source = u.idUser AND u.username = " 
-                + username + " OR h.destination = u.idUser AND u.username = " + username;
-        ArrayList<TransferInfo> transfers = new ArrayList<>();
-        String sourceName, destName;
-        try{
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            //TODO: Source and Destination must be converted to string
-            while(rs.next()){
-                sourceName = getUserName(rs.getInt("source"));
-                destName = getUserName(rs.getInt("destination"));
-                
-                transfers.add(new TransferInfo(rs.getDate("date"), sourceName, destName, rs.getString("filename")));
-            }
-            
-            rs.close();
-        }catch(SQLException e){
-            throw e;
-        }
-        
-        return transfers;
-    }
-   */
     public User getUser(String username) 
             throws SQLException, UserException 
     {
-        PreparedStatement st = conn.prepareStatement("SELECT * FROM miniclouddb.Users WHERE username = ?;");
+        PreparedStatement st = conn.prepareStatement(GET_USER);
         st.setString(1, username);
         st.executeQuery();
         
@@ -227,7 +132,7 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             }
             
             PreparedStatement st = conn.prepareStatement(AUTHENTICATE_USER);
-            st.setInt(1, user.getId());
+            st.setLong(1, user.getId());
             st.setInt(2, info.getKeepAlivePort());
             st.setInt(3, info.getTransferPort());
             st.setInt(4, info.getNotificationPort());
@@ -235,40 +140,298 @@ public class DBConnection implements DBScripts, DatabaseConstants {
         
             st.executeUpdate();
         }catch(SQLIntegrityConstraintViolationException e){
-            throw new UserException("Already logged in somewhere! please close the other instance and try again");
+            throw new UserException("Already logged in somewhere! please close the other instance and try again!");
         }
     }
     
+    public void userLogout(String username)
+            throws UserException, SQLException
+    {
+        try{
+            User user = getUser(username);
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM miniclouddb.authusers WHERE userId = ?");
+            
+            stmt.setInt(1, user.getId());
+            stmt.executeUpdate();
+        }catch(SQLIntegrityConstraintViolationException e){
+            throw new UserException("Already logged in somewhere! please close the other instance and try again!");
+        }
+    }
     
+    public FileData getFile(String username, String filename) 
+            throws UserException, SQLException, FileException
+    {
+        try{
+            User user = getUser(username);
+            
+            PreparedStatement st = conn.prepareStatement(GET_FILE);
+            st.setInt(1,user.getId());
+            st.setString(2, filename);
+            st.executeUpdate();
+            
+            ResultSet res = st.getResultSet();
+            if(res.next()){
+                return new FileData(res.getString("name"),res.getLong("size"));
+            }
+            
+            throw new FileException("File does not exist!");
+        }catch(UserException e){
+            throw new FileException("User does not exist!");
+        }
+    }
     
-    //public void addUser()
+    public boolean fileExists(int userid, String filename) 
+            throws UserException, SQLException, FileException
+    {
+        try{
+            
+            PreparedStatement st = conn.prepareStatement(GET_FILE);
+            st.setInt(1,userid);
+            st.setString(2, filename);
+            st.executeQuery();
+            
+            ResultSet res = st.getResultSet();
+            return res.next();
+            
+        }catch(SQLException e){
+            throw e;
+        }
+    }
     
-    //public void addFile()
+    public void addFile(String username, String filename, long filesize) 
+            throws UserException, SQLException, FileException
+    {
+        try{
+            User user = getUser(username);
+            
+            if(fileExists(user.getId(), filename))
+                throw new FileException("File alreadt exists!");
+            
+            PreparedStatement st = conn.prepareStatement(ADD_FILE);
+            st.setInt(1,user.getId());
+            st.setString(2, filename);
+            st.setLong(3, filesize);
+            
+            st.executeUpdate();
+        }catch(UserException e){
+            throw new UserException("can not add file: "+e);
+        }
+    }
     
-    //public void removeFile()
+    public void removeFile(String username, String filename) 
+            throws UserException, SQLException, FileException
+    {
+        try{
+            User user = getUser(username);
+            
+            if(!fileExists(user.getId(), filename))
+                throw new FileException("File does not exist!");
+                
+            PreparedStatement st = conn.prepareStatement(REMOVE_FILE);
+            st.setInt(1,user.getId());
+            st.setString(2, filename);
+            
+            st.executeUpdate();
+            
+        }catch(UserException e){
+            throw new UserException("Can not add a file to non existing user!");
+        }
+    }
     
-    //public void updateFile()
+    public void updateFile(String username,FileData file) 
+            throws UserException, SQLException, FileException
+    {
+        try{
+            User user = getUser(username);
+            
+            if(!fileExists(user.getId(), file.getName()))
+                throw new FileException("File does not exist!");
+                
+            PreparedStatement st = conn.prepareStatement(UPDATE_FILE);
+            st.setLong(1,file.getSize());
+            st.setInt(2,user.getId());
+            
+            st.executeUpdate();
+            
+        }catch(UserException e){
+            throw new UserException("Can not add a file to non existing user!");
+        }
+    }
     
     //public void addHistoryRegister
+    public void addHistoryRegister(String sourceName, String destName, String filename) 
+            throws SQLException, UserException
+    {
+        Calendar calendar = Calendar.getInstance();
+        Timestamp date = new java.sql.Timestamp(calendar.getTime().getTime());
+        int source = getUser(sourceName).getId();
+        int dest   = getUser(destName).getId();
+        
+        PreparedStatement st = conn.prepareStatement(ADD_TRANSFER_HISTORY);
+        st.setInt(1,source);
+        st.setInt(2,dest);
+        st.setTimestamp(3,date);
+        st.setString(4,filename);
+        
+        st.executeUpdate();
+    }
+    
+    public ArrayList<TransferInfo> getDownloadHistory(String username) 
+            throws SQLException
+    {
+        ArrayList<TransferInfo> history = new ArrayList<>();
+        
+        PreparedStatement st = conn.prepareStatement(GET_DOWNLOAD_HISTORY);
+        st.setString(1, username);
+        st.executeQuery();
+        
+        ResultSet result = st.getResultSet();
+        
+        while(result.next()){
+            history.add(new TransferInfo(result.getTimestamp("date"),
+                                          result.getString("source"),
+                                          result.getString("dest"),
+                                          result.getString("filename")));
+        }
+        return history;
+    }
+    
+    private ArrayList<TransferInfo> getUploadHistory(String username) 
+            throws SQLException
+    {
+        ArrayList<TransferInfo> history = new ArrayList<>();
+        
+        PreparedStatement st = conn.prepareStatement(GET_UPLOAD_HISTORY);
+        st.setString(1, username);
+        st.executeQuery();
+        
+        ResultSet result = st.getResultSet();
+        
+        while(result.next()){
+            history.add(new TransferInfo(result.getTimestamp("date"),
+                                          result.getString("source"),
+                                          result.getString("dest"),
+                                          result.getString("filename")));
+        }
+        return history;
+    }
+    
+     public ArrayList<ConnectedUser> getAuthenticatedUsers() throws SQLException{ 
+        ArrayList<ConnectedUser> connectedUsers = new ArrayList<>();
+        
+        try{
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(GET_LOGGED_USERS);
+            
+            while(rs.next()){
+                
+                ConnectedUser user = new ConnectedUser(
+                        rs.getString("username"),
+                        rs.getString("ipAddress"),
+                        rs.getInt("transferPort"));
+                
+                connectedUsers.add(user);
+            }
+            
+            return connectedUsers;
+        }catch(SQLException e){ 
+            throw e; 
+        }
+    }
+     
+    public ConnectedUser getSingleAuthenticatedUser(String username) 
+            throws SQLException, UserException
+    {
+        try{
+            PreparedStatement st = conn.prepareStatement(GET_LOGGED_USER_BY_NAME);
+            st.setString(1, username);
+            st.executeQuery();
+            
+            ResultSet rs = st.getResultSet();
+            if(rs.next()){
+                ConnectedUser user = new ConnectedUser(
+                        rs.getString("username"),
+                        rs.getString("ipAddress"),
+                        rs.getInt("transferPort"));
+                
+                return user;
+            }
+            throw new UserException("User is not logged in the system!");
+        }catch(SQLException e){ 
+            throw e; 
+        }
+    }
+    
+    public int getStrikes(String username) 
+            throws SQLException, UserException
+    {
+        try{
+            PreparedStatement st = conn.prepareStatement(GET_STRIKES);
+            st.setString(1, username);
+            st.executeQuery();
+            
+            ResultSet rs = st.getResultSet();
+            if(rs.next()){
+                return rs.getInt("strikes");
+            }
+            
+            throw new UserException("User is not logged on!");
+        }catch(SQLException e){ 
+            throw e; 
+        }
+    }
+    
+    public void setStrikes(String username, int strikes) 
+            throws SQLException, UserException
+    {
+        try{
+            PreparedStatement st = conn.prepareStatement(SET_STRIKES);
+            st.setInt(1, strikes);
+            st.setString(2, username);
+            st.executeUpdate();
+            
+        }catch(SQLException e){ 
+            throw e; 
+        }
+    }
+    
     
     //TODO: remove this main
     public static void main(String[] args) {
         try {
             DBConnection conn = new DBConnection("admin", "admin", "project-soralis.pro",55532);
             //conn.registerUser("wallace", "abcd");
+            //conn.registerUser("joana", "1234");
             
             LoginInfo info = new LoginInfo("wallace", "abcd", new ClientConnection(1, 2, 3));
             conn.userLogin(info, "192.168.1.299");
-        
+            
+            //LoginInfo x = new LoginInfo("joana", "1234", new ClientConnection(1, 2, 3));
+            //conn.userLogin(x, "192.168.1.22");
+            
+            //conn.addFile("wallace","myfile", 22333L);
+            //conn.addFile("joana","myfile", 22333L);
+            //conn.addFile("wallace","xpto", 22333L);
+            //conn.removeFile("wallace", "myfile");
+            //conn.updateFile("wallace", new FileData("myfile", 200));
+            //conn.addHistoryRegister("wallace","joana","myfich");
+            //System.out.println(conn.getDownloadHistory("wallace"));
+            //System.out.println(conn.getUploadHistory("wallace"));
+            //conn.setStrikes("joana", 3);
+            //System.out.println(conn.getStrikes("joana"));
+
+            ArrayList<ConnectedUser> users = conn.getAuthenticatedUsers();
+            
+            System.out.println(conn.getAuthenticatedUsers());
+            
         } catch (SQLException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UserException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
-        
+        }// catch (FileException ex) {
+          //  Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
+       //}
     }
 }

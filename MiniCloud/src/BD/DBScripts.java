@@ -30,6 +30,7 @@ public interface DBScripts {
             "  `transferPort` INT NOT NULL," +
             "  `notificationPort` INT NOT NULL," +
             "  `ipAddress` VARCHAR(15) NOT NULL," +
+            "  `strikes` INT UNSIGNED NOT NULL DEFAULT 0," +
             "  PRIMARY KEY (`userId`)," +
             "  INDEX `fk_AuthUsers_Users1_idx` (`userId` ASC) VISIBLE," +
             "  CONSTRAINT `fk_AuthUsers_Users1`" +
@@ -42,13 +43,13 @@ public interface DBScripts {
     final static String CREATE_TABLE_FILES = 
             "CREATE TABLE IF NOT EXISTS `MiniCloudDB`.`Files` (" +
             "  `idFiles` INT NOT NULL AUTO_INCREMENT," +
+            "  `owner` INT NOT NULL," +
             "  `name` VARCHAR(254) NOT NULL," +
             "  `size` BIGINT NOT NULL," +
-            "  `AuthUsers_userId` INT NOT NULL," +
-            "  PRIMARY KEY (`idFiles`, `AuthUsers_userId`)," +
-            "  INDEX `fk_Files_AuthUsers1_idx` (`AuthUsers_userId` ASC) VISIBLE," +
+            "  PRIMARY KEY (`idFiles`, `owner`)," +
+            "  INDEX `fk_Files_AuthUsers1_idx` (`owner` ASC) VISIBLE," +
             "  CONSTRAINT `fk_Files_AuthUsers1`" +
-            "    FOREIGN KEY (`AuthUsers_userId`)" +
+            "    FOREIGN KEY (`owner`)" +
             "    REFERENCES `MiniCloudDB`.`AuthUsers` (`userId`)" +
             "    ON DELETE CASCADE" +
             "    ON UPDATE NO ACTION)" +
