@@ -5,21 +5,35 @@ import java.util.List;
 import java.util.Observable;
 
 public class ServerObservable extends Observable{
-    private List<Thread> loggedClients;
+    
+    private List<String> loggedUsernames;
+    private List<ClientHandler> loggedUsers;
     
     public ServerObservable() {
-        loggedClients = new ArrayList<>();
-        
+        loggedUsernames = new ArrayList<>();
+        loggedUsers = new ArrayList<>();
     }
 
-    public List<Thread> getLoggedClients() {
-        return loggedClients;
+    public List<String> getLoggedClients() {
+        return loggedUsernames;
     }
 
-    public void addLoggedClient(Thread client) {
-        loggedClients.add(client);
+    public void addLoggedClient(String client) {
+        loggedUsernames.add(client);
     }
 
+    public void addLoggedThread(ClientHandler t){
+        loggedUsers.add(t);
+    }
+    
+    public List<ClientHandler> getLoggedUserThreads(){
+        return loggedUsers;
+    }
+    
+    public void sendExit(){
+        for(int i = 0; i < loggedUsers.size(); i++)
+            loggedUsers.get(i).exit();  
+    }
     
     @Override
     public void notifyObservers(Object arg) {
