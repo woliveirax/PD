@@ -1,29 +1,29 @@
 package Server;
 
+import BD.DBConnection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
 public class ServerObservable extends Observable{
     
-    private List<String> loggedUsernames;
+    private DBConnection DB;
     private List<ClientHandler> loggedUsers;
     
-    public ServerObservable() {
-        loggedUsernames = new ArrayList<>();
+    public ServerObservable(String DB_IP,int DB_PORT) {
+        try{
+            DB = new DBConnection("admin","admin", DB_IP,DB_PORT);
+        }catch(SQLException | ClassNotFoundException e){System.err.println(e.getCause()); System.exit(1);}
         loggedUsers = new ArrayList<>();
-    }
-
-    public List<String> getLoggedClients() {
-        return loggedUsernames;
-    }
-
-    public void addLoggedClient(String client) {
-        loggedUsernames.add(client);
     }
 
     public void addLoggedThread(ClientHandler t){
         loggedUsers.add(t);
+    }
+
+    public DBConnection getDB() {
+        return DB;
     }
     
     public List<ClientHandler> getLoggedUserThreads(){

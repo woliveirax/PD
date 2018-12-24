@@ -19,17 +19,12 @@ public class ServerComm extends Thread{
     private ServerSocket server = null;
 //    private final Socket socket = null;
     Socket nextClient = null;
-    private DBConnection DB = null;
     
     private static String ADDR_IP;
     private boolean CONTINUE;
     
     public ServerComm(String DB_IP, int DB_Port) {
-        try{
-            DB = new DBConnection("admin","admin", "project-soralis.pro", 55532);
-        }catch(SQLException | ClassNotFoundException e){System.err.println(e.getCause()); System.exit(1);}
-        
-        serverObs = new ServerObservable();
+        serverObs = new ServerObservable(DB_IP,DB_Port);
         ClientsThreads = new ArrayList<>();
         CONTINUE = true;
         
@@ -44,7 +39,6 @@ public class ServerComm extends Thread{
         CONTINUE = false;
         try{
             server.close();
-            DB.shutdown();
         }catch(IOException e){
             System.out.println("could not close the socket!");
         }
@@ -71,7 +65,7 @@ public class ServerComm extends Thread{
                 System.out.println ("Received request from " + nextClient.getInetAddress() + ":" + nextClient.getPort() );
                
                 // create a new thread object 
-                ClientHandler t = new ClientHandler(nextClient, serverObs, DB); 
+                ClientHandler t = new ClientHandler(nextClient, serverObs); 
                 // Invoking the start() method 
                 t.start();
                 ClientsThreads.add(t); 
