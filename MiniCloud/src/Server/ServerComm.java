@@ -26,7 +26,7 @@ public class ServerComm extends Thread{
     
     public ServerComm(String DB_IP, int DB_Port) {
         try{
-            DB = new DBConnection("admin","admin", DB_IP,DB_Port);
+            DB = new DBConnection("admin","admin", "project-soralis.pro", 55532);
         }catch(SQLException | ClassNotFoundException e){System.err.println(e.getCause()); System.exit(1);}
         
         serverObs = new ServerObservable();
@@ -44,6 +44,7 @@ public class ServerComm extends Thread{
         CONTINUE = false;
         try{
             server.close();
+            DB.shutdown();
         }catch(IOException e){
             System.out.println("could not close the socket!");
         }
