@@ -101,16 +101,16 @@ public class DownloadService extends Thread {
             socket.setSoTimeout(TIMEOUT);
             
         }catch(SocketTimeoutException e){
-            //TODO: erase file
+            file.delete();
             throw new ConnectException("Connection timeout: " + e);
         }catch(SocketException e){
-            //TODO: erase file
+            file.delete();
             throw new ConnectException("Socket error: " + e);
         }catch(UnknownHostException e){
-            //TODO: erase file
+            file.delete();
             throw new ConnectException("Host unknown: " + e);
         }catch(IOException e){
-            //TODO: erase file
+            file.delete();
             throw new ConnectException("Could not connect to host:" + e);
         }
     }

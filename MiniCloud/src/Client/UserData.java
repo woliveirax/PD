@@ -13,12 +13,9 @@ public class UserData implements Serializable {
     private File downloadPath; //TODO: add file verification
     private File uploadPath;
     
-    //TODO: Add methods to handle these calls
-    private final DataTransfer fileTransfers;
     private List<CloudData> fileList;
-
+    
     public UserData() {
-        this.fileTransfers = new DataTransfer();
     }
     
     public void addNewUser(CloudData user){
@@ -36,7 +33,6 @@ public class UserData implements Serializable {
         }
     }
     
-    //TODO: verify the neceissity for this
     private CloudData getUserData(String user){
         for(CloudData data : fileList)
             if(data.getUser().compareTo(user) == 0)
@@ -45,7 +41,25 @@ public class UserData implements Serializable {
         return null;
     }
     
-    public void updateUserFile(String user, FileData file){
+    public void addFileToUser(String user, FileData file){
+        CloudData data = getUserData(user);
+        
+        if(data == null)
+            return;
+        
+        data.addFile(file);
+    }
+    
+    public void removeFileFromUser(String user, String filename){
+        CloudData data = getUserData(user);
+        
+        if(data == null)
+            return;
+        
+        data.removeFile(filename);
+    }
+    
+    public void updateFileFromUser(String user, FileData file){
         CloudData data = getUserData(user);
         
         if(data == null)
@@ -63,7 +77,7 @@ public class UserData implements Serializable {
     }
     
     public ArrayList<CloudData> getFileList() {
-        return (ArrayList<CloudData>) fileList;
+        return (ArrayList<CloudData>)fileList;
     }
     
     public void setDownloadPath(File file) throws InvalidDirectoryException {

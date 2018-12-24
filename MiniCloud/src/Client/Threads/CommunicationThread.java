@@ -6,7 +6,6 @@ import comm.AuthPackets.LoginDenied;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -23,8 +22,6 @@ public class CommunicationThread extends Thread {
     {
         this.observable = obs;
         socket = new Socket(srvAddr,port);
-        System.out.println("ccc");
-        
         
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
@@ -32,13 +29,17 @@ public class CommunicationThread extends Thread {
         CONTINUE = true;
     }
     
-    public void sendMsg(Object msg){
+    private void sendMsg(Object msg) throws IOException{
         try{
             out.writeObject(msg);
             out.flush();
         }catch(IOException e){
-            System.out.println("Message was not sent!");
+            throw e;
         }        
+    }
+    
+    public void sendChatMessage(String message) throws IOException{
+        sendMsg(message);
     }
     
     public void exit(){
