@@ -15,6 +15,8 @@ public interface DatabaseConstants {
     final static String AUTHENTICATE_USER = "INSERT INTO miniclouddb.AuthUsers (userId, keepAlivePort, transferPort,notificationPort, ipAddress) VALUES (?,?,?,?,?);";
     final static String LOGOUT_USER = "INSERT INTO miniclouddb.Users (username, password) VALUES (?,?,?);";
     
+    final static String GET_FILES_FROM_USER = "SELECT name, size FROM miniclouddb.Files, miniclouddb.users WHERE owner = idUser AND username = ?;";
+    
     final static String GET_FILE = "SELECT * FROM miniclouddb.Files WHERE owner = ? AND name = ?;";
     final static String ADD_FILE = "INSERT INTO miniclouddb.Files (owner, name, size) VALUES (?,?,?);";
     final static String REMOVE_FILE = "DELETE FROM miniclouddb.Files WHERE owner = ? AND name = ?;";
