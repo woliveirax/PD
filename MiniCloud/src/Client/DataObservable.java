@@ -35,9 +35,9 @@ public class DataObservable extends Observable {
         watchdog.start();
     }
     
-//    public void login(String username, String password){
-//        comm.login(username,password);
-//    }
+    public void login(String username, String password) throws IOException{
+        comm.login(username,password);
+    }
     
     //UserData funcs
     public void removeFileFromUser(String user, String filename){

@@ -3,6 +3,8 @@ package Client.Threads;
 import Client.DataObservable;
 import comm.AuthPackets.LoginAccepted;
 import comm.AuthPackets.LoginDenied;
+import comm.ClientConnection;
+import comm.LoginInfo;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -40,6 +42,10 @@ public class CommunicationThread extends Thread {
     
     public void sendChatMessage(String message) throws IOException{
         sendMsg(message);
+    }
+    
+    public void login(String user, String password) throws IOException{
+        sendMsg(new LoginInfo(user, password,new ClientConnection(3,1,2)));
     }
     
     public void exit(){

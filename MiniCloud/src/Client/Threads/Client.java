@@ -19,11 +19,20 @@ public class Client {
             Scanner scan = new Scanner(System.in);
             while(true){ 
                 System.out.print("> "); 
-                String msg = scan.nextLine(); 
-
+                String msg = scan.nextLine();
+                
                 if(msg.equalsIgnoreCase("exit")){ 
                     break; 
                 }
+                
+                if(msg.equalsIgnoreCase("login wallace")){
+                    x.login("wallace", "345");
+                }
+                
+                if(msg.equalsIgnoreCase("login joana")){
+                    x.login("joana", "123");
+                }
+                
                 x.sendChatMessage(msg); 
             }
         } catch (WatchDogException ex) {
