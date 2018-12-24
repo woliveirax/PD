@@ -1,7 +1,6 @@
 package Server;
 
 import BD.ConnectedUser;
-import Client.WatchDog.FileAlterationTypes;
 import Exceptions.FileException;
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
@@ -23,8 +22,6 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientHandler extends Thread {
 
@@ -185,7 +182,6 @@ public class ClientHandler extends Thread {
                     String[] splitted = msg.split("\\s+|\\n+|\\@");//separates when it encounters a space(\\s), a paragraph(\\n) or an arroba(\\@)
                     if (msg.startsWith("@", 0) && serverObs.getDB().userExists(splitted[1])) {
                         sendPrivateMsg(msg, splitted[1]);
-                        System.out.println("mmmmm");
                     } else {
                         sendGlobalMsg(msg);
                     }
