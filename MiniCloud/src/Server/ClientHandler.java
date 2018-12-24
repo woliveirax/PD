@@ -66,7 +66,7 @@ public class ClientHandler extends Thread {
             out.flush();
             out.close();
             
-            dSckt = new DatagramSocket();
+            dSckt = new DatagramSocket(0);
             dPkt = new DatagramPacket(bStream.toByteArray(), bStream.size(), InetAddress.getByName(receiver.getIp()), receiver.getKeepAlivePort());
             dSckt.send(dPkt);
             
