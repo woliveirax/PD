@@ -3,6 +3,7 @@ package Client.Threads;
 import Client.DataObservable;
 import comm.AuthPackets.LoginAccepted;
 import comm.AuthPackets.LoginDenied;
+import comm.AuthPackets.Logout;
 import comm.ClientConnection;
 import comm.LoginInfo;
 import java.io.IOException;
@@ -45,7 +46,14 @@ public class CommunicationThread extends Thread {
     }
     
     public void login(String user, String password) throws IOException{
-        sendMsg(new LoginInfo(user, password,new ClientConnection(3,1,2)));
+        sendMsg(new LoginInfo(user, password,new ClientConnection(
+                                            observable.getKeepAlivePort(),
+                                            observable.getTransferPort(),
+                                            observable.getNotificationPort())));
+    }
+    
+    public void logout() throws IOException{
+        sendMsg(new Logout());
     }
     
     public void exit(){

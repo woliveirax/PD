@@ -1,5 +1,8 @@
 package Client.Threads;
 
+import Client.DataObservable;
+import Exceptions.DirectoryException;
+import Exceptions.DownloadException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,18 +19,20 @@ import java.net.SocketTimeoutException;
 public class UploadService extends Thread {
     private static final int MAX_PACKET_SIZE = 10000;
     private static final int TIMEOUT = 2000;
+    private final DataObservable observable;
     
     private final ServerSocket server;
     
-    File directory;
-    int port;
+    private File directory;
     
     //TODO: must receive the handler for the Upload file counter
-    public UploadService(String localDirectory,int port)
+    public UploadService(DataObservable obs)
         throws DirectoryException, IOException
     {
-        server = new ServerSocket(port, 5);
-        directory = new File(localDirectory.trim());
+        observable = obs;
+        
+        server = new ServerSocket(0, 5);
+        directory = observable.getUploadPath();
         
         if(!directory.exists()){
             throw new DirectoryException("Directory \'" + directory.getPath() 
@@ -43,6 +48,10 @@ public class UploadService extends Thread {
             throw new DirectoryException("Can not write to: \'" + 
                     directory.getPath() + "\' check permissions!");
         }
+    }
+    
+    public int getPort(){
+        return server.getLocalPort();
     }
     
     private void HandleRequest(Socket socket)

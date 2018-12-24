@@ -2,6 +2,7 @@ package Client.Threads;
 
 import Client.DataObservable;
 import Client.WatchDog.WatchDogException;
+import Exceptions.DirectoryException;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -26,11 +27,11 @@ public class Client {
                 }
                 
                 if(msg.equalsIgnoreCase("login wallace")){
-                    x.login("wallace", "345");
+                    x.login("wallace", "abcd");
                 }
                 
                 if(msg.equalsIgnoreCase("login joana")){
-                    x.login("joana", "123");
+                    x.login("joana", "1234");
                 }
                 
                 x.sendChatMessage(msg); 
@@ -38,6 +39,8 @@ public class Client {
         } catch (WatchDogException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DirectoryException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -5,6 +5,9 @@
  */
 package Client.Threads;
 
+import Exceptions.DirectoryException;
+import Exceptions.DownloadException;
+import Exceptions.FileException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -17,27 +20,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
-class DownloadException extends Exception {
-    public DownloadException(String msg){
-        super(msg);
-    }
-}
 
-class FileException extends Exception {
-    public FileException(String message) {
-        super(message);
-    }
-}
-
-class DirectoryException extends Exception {
-    public DirectoryException(String message){
-        super(message);
-    }
-}
-
-/**
- * @version 1.0
- */
 public class DownloadService extends Thread {
     private static final int MAX_PACKET_SIZE = 10000;
     private static final int TIMEOUT = 2000;
@@ -157,7 +140,6 @@ public class DownloadService extends Thread {
     @Override
     public void run() {
         try{
-            //TODO: add 1 to file counter
             fileToWrite = new FileOutputStream(file);
             connectToPeer();
             downloadFile();

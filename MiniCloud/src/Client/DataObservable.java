@@ -1,8 +1,12 @@
 package Client;
 
 import Client.Threads.CommunicationThread;
+import Client.Threads.KeepAliveThread;
+import Client.Threads.NotificationThread;
+import Client.Threads.UploadService;
 import Client.WatchDog.WatchDog;
 import Client.WatchDog.WatchDogException;
+import Exceptions.DirectoryException;
 import Exceptions.InvalidDirectoryException;
 import comm.CloudData;
 import comm.FileData;
@@ -14,34 +18,69 @@ import java.util.Observable;
 public class DataObservable extends Observable {
     WatchDog watchdog;
     CommunicationThread comm;
+    KeepAliveThread keepAlive;
+    UploadService uploadService;
+    NotificationThread notificationService;
     
     UserData userdata;
+    String chat;
+    String notification;
+    
     
     public DataObservable(String ipAddress, int port) 
-            throws WatchDogException, IOException
+            throws WatchDogException, IOException, DirectoryException
     {
         try{
             userdata = new UserData();
-            watchdog = new WatchDog(this);
-            comm = new CommunicationThread(port, ipAddress, this);
-            comm.start();
+            chat = null;
+            notification = null;
             
-        }catch(WatchDogException e){
-            throw e;
+            watchdog = new WatchDog(this);
+            uploadService = new UploadService(this);
+            notificationService = new NotificationThread(this);
+                    
+            comm = new CommunicationThread(port, ipAddress, this);
+            keepAlive = new KeepAliveThread(this);
+            
+            comm.start();
+            keepAlive.start();
+            
+        }catch (DirectoryException | WatchDogException ex) {
+            throw ex;
         }
     }
     
-    public void startWatchDogService(){
+    public void startServices(){
         watchdog.start();
+        uploadService.start();
+    }
+    
+    public int getKeepAlivePort(){
+        return keepAlive.getPort();
+    }
+    
+    public int getTransferPort(){
+        return uploadService.getPort();
+    }
+    
+    public int getNotificationPort(){
+        return notificationService.getPort();
     }
     
     public void login(String username, String password) throws IOException{
         comm.login(username,password);
     }
     
+    public void logout() throws IOException{
+        comm.logout();
+    }
+    
     //UserData funcs
     public void removeFileFromUser(String user, String filename){
         userdata.removeFileFromUser(user, filename);
+        
+        setChanged();
+        notifyObservers();
     }
     
     public void addFileFromUser(String user, FileData file){
@@ -50,10 +89,16 @@ public class DataObservable extends Observable {
     
     public void removeUserFromFileList(String username){
         userdata.RemoveUser(username);
+        
+        setChanged();
+        notifyObservers();
     }
     
     public void addUserToFileList(CloudData data){
         userdata.addNewUser(data);
+        
+        setChanged();
+        notifyObservers();
     }
     
     public ArrayList<CloudData> getUsers(){
@@ -94,6 +139,22 @@ public class DataObservable extends Observable {
     }
     
     public void sendChatMessage(String msg) throws IOException{
-        comm.sendChatMessage("Testing this!");
+        comm.sendChatMessage(msg);
     }
+    
+    public synchronized void receiveChatMessage(String msg){
+        chat = msg;
+        
+        setChanged();
+        notifyObservers();
+    }
+    
+    public synchronized void receiveNotification(String notification){
+        this.notification = notification;
+        
+        setChanged();
+        notifyObservers();
+    }
+    
+    //TODO: gere historicos
 }

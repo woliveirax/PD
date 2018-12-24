@@ -44,16 +44,19 @@ public class KeepAliveThread extends Thread {
             throws IOException, ClassNotFoundException
     {    
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData()));
-        Object message = in.readObject();
+        Object obj = in.readObject();
         
-        if(message instanceof KeepAlive){
+        if(obj instanceof String){
+                    System.out.println((String)obj);
+                    
+        } else if(obj instanceof KeepAlive){
             packet.setData(new byte[MIN_BUFFER_SIZE]);
             socket.send(packet);
         }
-        else if(message instanceof RefreshData){
+        else if(obj instanceof RefreshData){
             //TODO: Waiting on teachers reply
             
-            packet.setData(new byte[MIN_BUFFER_SIZE]);//TODO: figure out a cleaner way for this
+            packet.setData(new byte[MIN_BUFFER_SIZE]);
             socket.send(packet);
         }
     }
