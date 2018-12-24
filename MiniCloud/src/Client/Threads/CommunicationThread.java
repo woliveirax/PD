@@ -60,7 +60,10 @@ public class CommunicationThread extends Thread {
             {
                 obj = in.readObject();
                 
-                if(obj instanceof LoginAccepted){
+                if(obj instanceof String){
+                    System.out.println((String)obj);
+                    
+                } else if(obj instanceof LoginAccepted){
                     System.out.println("Logged In the server!");
                 }
                 else if(obj instanceof LoginDenied){

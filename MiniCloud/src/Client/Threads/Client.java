@@ -14,7 +14,7 @@ public class Client {
         try {
             //CloudLogin interfaceStartUp = new CloudLogin();
             //interfaceStartUp.setVisible(true);
-            DataObservable x = new DataObservable("37.189.50.107",80);
+            DataObservable x = new DataObservable("project-soralis.pro",6001);
             
             Scanner scan = new Scanner(System.in);
             while(true){ 
@@ -24,7 +24,6 @@ public class Client {
                 if(msg.equalsIgnoreCase("exit")){ 
                     break; 
                 }
-
                 x.sendChatMessage(msg); 
             }
         } catch (WatchDogException ex) {
