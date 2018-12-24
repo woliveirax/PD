@@ -19,7 +19,7 @@ public class ServerMain {
             //TODO: criar thread p iniciar server port
             server = new ServerComm(args[0],portBD);
             server.start();
-            
+            System.out.println("Bem vindo ao servidor, escreva exit para terminar!");
             Scanner scan = new Scanner(System.in);
             
             while(true){
