@@ -21,4 +21,9 @@ public class FileData {
     public long getSize() {
         return size;
     }
+
+    @Override
+    public String toString() {
+        return "FileData{" + "name=" + name + ", size=" + size + '}';
+    }
 }

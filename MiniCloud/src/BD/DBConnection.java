@@ -395,6 +395,51 @@ public class DBConnection implements DBScripts, DatabaseConstants {
         }
     }
     
+    public ArrayList<FileData> getFilesFromUser(String username)
+            throws SQLException
+    {
+        try{
+            ArrayList<FileData> files = new ArrayList<>();
+            
+            PreparedStatement st = conn.prepareStatement(GET_FILES_FROM_USER);
+            st.setString(1, username);
+            st.executeQuery();
+            
+            ResultSet rs = st.getResultSet();
+            while(rs.next()){
+                files.add(new FileData(rs.getString("name"), rs.getLong("size")));
+            }
+            return files;
+            
+        }catch(SQLException e){
+            throw e;
+        }
+    }
+    
+    public ArrayList<CloudData> getAllUsersData()
+            throws UserException, SQLException
+    {
+        try{
+            ArrayList<CloudData> users = new ArrayList<>();
+            
+            PreparedStatement st = conn.prepareStatement(GET_LOGGED_USERS);
+            st.executeQuery();
+            
+            ResultSet rs = st.getResultSet();
+            while(rs.next()){
+                CloudData user = new CloudData(
+                        rs.getString("username"),
+                        rs.getString("ipAddress"),
+                        rs.getInt("transferPort"));
+                
+                user.setInitialFiles(getFilesFromUser(user.getUser()));
+                users.add(user);
+            }
+            return users;
+        }catch(SQLException e){ 
+            throw e; 
+        }
+    }
     
     //TODO: remove this main
     public static void main(String[] args) {
@@ -403,8 +448,8 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             //conn.registerUser("wallace", "abcd");
             //conn.registerUser("joana", "1234");
             
-            LoginInfo info = new LoginInfo("wallace", "abcd", new ClientConnection(1, 2, 3));
-            conn.userLogin(info, "192.168.1.299");
+            //LoginInfo info = new LoginInfo("wallace", "abcd", new ClientConnection(1, 2, 3));
+            //conn.userLogin(info, "192.168.1.299");
             
             //LoginInfo x = new LoginInfo("joana", "1234", new ClientConnection(1, 2, 3));
             //conn.userLogin(x, "192.168.1.22");
@@ -417,12 +462,17 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             //conn.addHistoryRegister("wallace","joana","myfich");
             //System.out.println(conn.getDownloadHistory("wallace"));
             //System.out.println(conn.getUploadHistory("wallace"));
-            //conn.setStrikes("joana", 3);
+            //conn.setStrikes("j", 3);
             //System.out.println(conn.getStrikes("joana"));
-
-            ArrayList<ConnectedUser> users = conn.getAuthenticatedUsers();
             
             System.out.println(conn.getAuthenticatedUsers());
+            
+            ArrayList<CloudData> x = conn.getAllUsersData();
+            
+            for(CloudData user : x){
+                System.out.println(user.getUser());
+                System.out.println(user.getFiles());
+            }
             
         } catch (SQLException ex) {
             Logger.getLogger(DBConnection.class.getName()).log(Level.SEVERE, null, ex);
