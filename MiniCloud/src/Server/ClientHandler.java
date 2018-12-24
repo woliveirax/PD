@@ -69,10 +69,13 @@ public class ClientHandler extends Thread {
                         dSckt.send(dPkt);
                     }
                 } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
 
             } catch (SocketException e) {
+                e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
             }
     }
     
@@ -89,6 +92,7 @@ public class ClientHandler extends Thread {
                         serverObs.getLoggedUserThreads().get(i).writeObject(
                                 new IOException("Error while sending chat msg"));
                     } catch (IOException ex) {
+                        e.printStackTrace();
                     }
                 }
                 found = true;
@@ -101,6 +105,7 @@ public class ClientHandler extends Thread {
             try {
                 receiver = DB.getSingleAuthenticatedUser(dest_name);
             } catch (SQLException | UserException e) {
+                e.printStackTrace();
             }
             
             createDatagramAndSendIt(receiver,msg);
@@ -119,7 +124,7 @@ public class ClientHandler extends Thread {
 
         if (outsideUsers != null) { 
             //gets the authenticated users from other servers
-            for (Iterator<ConnectedUser> it = outsideUsers.iterator(); it.hasNext(); it.next()) {
+            for (Iterator<ConnectedUser> it = outsideUsers.iterator(); it.hasNext();) {
                 ConnectedUser next = it.next();
                 for (String connectedUser : serverObs.getLoggedClients()) {
                     if (next.getUsername().compareTo(connectedUser) == 0) {
@@ -171,15 +176,14 @@ public class ClientHandler extends Thread {
                 // receive the answer from client 
                 received = in.readObject();
 
-                if (received instanceof String) {//means a message is to be sent to other people
+                if (received instanceof String) {//means a message is to be sent to other people                    
                     String msg = (String) received;
                     String[] splitted = msg.split("\\s+|\\n+|\\@");//separates when it encounters a space(\\s), a paragraph(\\n) or an arroba(\\@)
-                    if (DB.userExists(splitted[1])) {
-                        if (msg.startsWith("@", 0)) {
-                            sendPrivateMsg(msg, splitted[1]);
-                        } else {
-                            sendGlobalMsg(msg);
-                        }
+                    if (msg.startsWith("@", 0) && DB.userExists(splitted[1])) {
+                        sendPrivateMsg(msg, splitted[1]);
+                        System.out.println("mmmmm");
+                    } else {
+                        sendGlobalMsg(msg);
                     }
 
                 } else if (received instanceof LoginInfo) {//TODO: compare to all object types
@@ -189,7 +193,6 @@ public class ClientHandler extends Thread {
                     }catch(UserException | SQLException e){
                         writeObject(e);
                     }
-                    
                     writeObject(new LoginAccepted());
                     System.out.println("Login accepted"); 
                     username = ((LoginInfo) received).getUsername();
@@ -199,6 +202,11 @@ public class ClientHandler extends Thread {
                 } else if (received instanceof InitialFilePackage) {
                     //updateClientsFilesInfo throught UDP and TCP
                 } else if (received instanceof KeepAlive) {
+                    try{
+                        DB.setStrikes(this.username,0);
+                    }catch(SQLException | UserException e){
+                        System.err.println(e);
+                    }
                     //update DB
                 } else if (received instanceof RefreshData) {
                     //updateClientsFilesInfo throught UDP and TCP
