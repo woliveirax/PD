@@ -1,7 +1,6 @@
 package Server;
 
 import BD.ConnectedUser;
-import BD.DBConnection;
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
 import comm.InitialFilePackage;
@@ -27,16 +26,14 @@ public class ClientHandler extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private final Socket s;
-    private DBConnection DB;
     private String username;
     private boolean CONTINUE;
 
     private int TIMEOUT = 5000;
 
-    public ClientHandler(Socket s, ServerObservable serverObs, DBConnection db) {
+    public ClientHandler(Socket s, ServerObservable serverObs) {
         this.s = s;
         this.serverObs = serverObs;
-        DB = db;
         CONTINUE = true;
     }
 
@@ -83,8 +80,8 @@ public class ClientHandler extends Thread {
         msg = "PM -" + username + ": " + msg;
         Boolean found = false;
 
-        for (int i = 0; i < serverObs.getLoggedClients().size(); i++) {
-            if (serverObs.getLoggedClients().get(i).compareTo(dest_name) == 0) {
+        for (int i = 0; i < serverObs.getLoggedUserThreads().size(); i++) {
+            if (serverObs.getLoggedUserThreads().get(i).username.compareTo(dest_name) == 0) {
                 try {
                     serverObs.getLoggedUserThreads().get(i).writeObject(msg);
                 } catch (IOException e) {
@@ -103,9 +100,9 @@ public class ClientHandler extends Thread {
         if (!found) {
             ConnectedUser receiver = null;
             try {
-                receiver = DB.getSingleAuthenticatedUser(dest_name);
+                receiver = serverObs.getDB().getSingleAuthenticatedUser(dest_name);
             } catch (SQLException | UserException e) {
-                e.printStackTrace();
+                System.out.println(e);
             }
             
             createDatagramAndSendIt(receiver,msg);
@@ -118,7 +115,7 @@ public class ClientHandler extends Thread {
         msg = username + ": " + msg;
 
         try {
-            outsideUsers = DB.getAuthenticatedUsers();
+            outsideUsers =  serverObs.getDB().getAuthenticatedUsers();
         } catch (SQLException e) {
         }
 
@@ -126,8 +123,8 @@ public class ClientHandler extends Thread {
             //gets the authenticated users from other servers
             for (Iterator<ConnectedUser> it = outsideUsers.iterator(); it.hasNext();) {
                 ConnectedUser next = it.next();
-                for (String connectedUser : serverObs.getLoggedClients()) {
-                    if (next.getUsername().compareTo(connectedUser) == 0) {
+                for (ClientHandler connectedUser : serverObs.getLoggedUserThreads()) {
+                    if (next.getUsername().compareTo(connectedUser.username) == 0) {
                         it.remove();
                     }
                 }
@@ -137,8 +134,8 @@ public class ClientHandler extends Thread {
                  createDatagramAndSendIt(receiver,msg);
             }
             //sends the Msg via TCP to the logged users to this server
-            for (int i = 0; i < serverObs.getLoggedClients().size(); i++) {
-                if (serverObs.getLoggedClients().get(i).compareTo(username) != 0) {
+            for (int i = 0; i < serverObs.getLoggedUserThreads().size(); i++) {
+                if (serverObs.getLoggedUserThreads().get(i).username.compareTo(username) != 0) {
                     try {
                         serverObs.getLoggedUserThreads().get(i).writeObject(msg);
                     } catch (IOException e) {
@@ -179,7 +176,7 @@ public class ClientHandler extends Thread {
                 if (received instanceof String) {//means a message is to be sent to other people                    
                     String msg = (String) received;
                     String[] splitted = msg.split("\\s+|\\n+|\\@");//separates when it encounters a space(\\s), a paragraph(\\n) or an arroba(\\@)
-                    if (msg.startsWith("@", 0) && DB.userExists(splitted[1])) {
+                    if (msg.startsWith("@", 0) && serverObs.getDB().userExists(splitted[1])) {
                         sendPrivateMsg(msg, splitted[1]);
                         System.out.println("mmmmm");
                     } else {
@@ -187,23 +184,23 @@ public class ClientHandler extends Thread {
                     }
 
                 } else if (received instanceof LoginInfo) {//TODO: compare to all object types
-                    //TODO: check in DATABASE IF USER HAS VALID CREDENCIALS
                     try{
-                        DB.userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
+                        serverObs.getDB().userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
                     }catch(UserException | SQLException e){
                         writeObject(e);
                     }
                     writeObject(new LoginAccepted());
                     System.out.println("Login accepted"); 
                     username = ((LoginInfo) received).getUsername();
-                    serverObs.addLoggedClient(username);
                     serverObs.addLoggedThread(this);
 
                 } else if (received instanceof InitialFilePackage) {
-                    //updateClientsFilesInfo throught UDP and TCP
+                    InitialFilePackage filePackages = (InitialFilePackage)received;
+                    
+                    //addFile(String username, String filename, long filesize)
                 } else if (received instanceof KeepAlive) {
                     try{
-                        DB.setStrikes(this.username,0);
+                        serverObs.getDB().setStrikes(this.username,0);
                     }catch(SQLException | UserException e){
                         System.err.println(e);
                     }
