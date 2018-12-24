@@ -1,8 +1,11 @@
 package Server;
 
 import BD.ConnectedUser;
+import Client.WatchDog.FileAlterationTypes;
+import Exceptions.FileException;
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
+import comm.FileData;
 import comm.InitialFilePackage;
 import comm.KeepAlive;
 import comm.LoginInfo;
@@ -20,6 +23,8 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientHandler extends Thread {
 
@@ -198,8 +203,14 @@ public class ClientHandler extends Thread {
 
                 } else if (received instanceof InitialFilePackage) {
                     InitialFilePackage filePackages = (InitialFilePackage)received;
-                    
-                    //addFile(String username, String filename, long filesize)
+                    for(FileData file : filePackages.getFiles()){
+                        try {
+                            serverObs.getDB().addFile(this.username, file.getName(),file.getSize());
+                        } catch (UserException | SQLException | FileException ex) {
+                            System.err.println(ex.getCause());
+                        }
+                    }
+                    //TODO: missing notify for updateClientsFilesInfo throught UDP and TCP
                 } else if (received instanceof KeepAlive) {
                     try{
                         serverObs.getDB().setStrikes(this.username,0);
@@ -208,6 +219,9 @@ public class ClientHandler extends Thread {
                     }
                     //update DB
                 } else if (received instanceof RefreshData) {
+                    switch(((RefreshData) received).getType()){
+                        
+                    }
                     //updateClientsFilesInfo throught UDP and TCP
                 }
             }catch (IOException e) {
