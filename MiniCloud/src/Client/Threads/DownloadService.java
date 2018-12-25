@@ -8,6 +8,7 @@ package Client.Threads;
 import Exceptions.DirectoryException;
 import Exceptions.DownloadException;
 import Exceptions.FileException;
+import Client.DataObservable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,6 +27,7 @@ public class DownloadService extends Thread {
     private static final int TIMEOUT = 2000;
     
     private Socket socket;
+    private DataObservable observable;
     
     private FileOutputStream fileToWrite;
     private final File directory;
@@ -37,6 +39,7 @@ public class DownloadService extends Thread {
     /**
      * Download a file from a selected source
      * 
+     * @param obs observable object
      * @param filename name of the file to download
      * @param localDirectory directory where the file will be placed
      * @param address address of the download source
@@ -45,36 +48,37 @@ public class DownloadService extends Thread {
      * @throws DirectoryException  if the directory already exists the system will throw this
      */
     
-    //TODO: must receive the handler for the download file counter
-    public DownloadService(String filename, String localDirectory,
-                           String address, int port)
+    public DownloadService(DataObservable obs, String filename, String address, int port)
         throws FileException, DirectoryException
     {
-        this.address = address.trim();
-        this.port = port;
-        
-        this.directory = new File(localDirectory.trim());
-        this.file = new File(localDirectory.trim() + File.separator +
-                            filename.trim());
-        
-        if(!directory.exists()){
-            throw new DirectoryException("Directory \'" + directory.getPath() 
-                    + "\'" + "does not exist!");
-        }
-        
-        if(!directory.isDirectory()){
-            throw new DirectoryException("Path: \'" + directory.getPath() +
-                    "\' not a valid directory!");
-        }
-        
-        if(!directory.canWrite()){
-            throw new DirectoryException("Can not write to: \'" + 
-                    directory.getPath() + "\' check permissions!");
-        }
-        
-        if(file.exists()){
-            throw new FileException("File: \'" + file.getName()
-                    + " already exists!");
+        try{
+            this.address = address.trim();
+            this.port = port;
+
+            this.directory = observable.getDownloadPath();
+            this.file = new File(observable.getDownloadPath() + File.separator + filename.trim());
+
+            if(!directory.exists()){
+                throw new DirectoryException("Directory \'" + directory.getPath() 
+                        + "\'" + "does not exist!");
+            }
+
+            if(!directory.isDirectory()){
+                throw new DirectoryException("Path: \'" + directory.getPath() +
+                        "\' not a valid directory!");
+            }
+
+            if(!directory.canWrite()){
+                throw new DirectoryException("Can not write to: \'" + 
+                        directory.getPath() + "\' check permissions!");
+            }
+
+            if(file.exists()){
+                throw new FileException("File: \'" + file.getName()
+                        + " already exists!");
+            }
+        } catch (DirectoryException | FileException e){
+            throw e;
         }
     }
     
@@ -144,15 +148,18 @@ public class DownloadService extends Thread {
             connectToPeer();
             downloadFile();
             
-            //TODO: ask server to write to keep log
+            //TODO:
+            //observable.addFileTransfer(info);
             
-            //TODO: In case of exceptions remove file!
         }catch(FileNotFoundException e){
             System.out.println("Could not create output file! Error: " + e);
+            file.delete();
         }catch(ConnectException e){
             System.out.println("Host connection error: " + e);
+            file.delete();
         }catch(DownloadException e){
             System.out.println("Error while trying to download the file: " + e);
+            file.delete();
         }finally{
             try{
                 socket.close();

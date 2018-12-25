@@ -1,6 +1,7 @@
 package Client.Threads;
 
 import Client.DataObservable;
+import Client.GUI.CloudLogin;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
 import java.io.IOException;
@@ -12,36 +13,38 @@ public class Client {
     
     public static void main(String[] args) throws Exception {
         
-        try {
+//        try {
             //CloudLogin interfaceStartUp = new CloudLogin();
             //interfaceStartUp.setVisible(true);
-            DataObservable x = new DataObservable("project-soralis.pro",6002);
+            DataObservable x = new DataObservable("project-soralis.pro",6001);
             
-            Scanner scan = new Scanner(System.in);
-            while(true){ 
-                System.out.print("> "); 
-                String msg = scan.nextLine();
-                
-                if(msg.equalsIgnoreCase("exit")){ 
-                    break; 
-                }
-                
-                if(msg.equalsIgnoreCase("login wallace")){
-                    x.login("wallace", "abcd");
-                }
-                
-                if(msg.equalsIgnoreCase("login joana")){
-                    x.login("joana", "1234");
-                }
-                
-                x.sendChatMessage(msg); 
-            }
-        } catch (WatchDogException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (DirectoryException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            new CloudLogin(x).setVisible(true);
+            
+//            Scanner scan = new Scanner(System.in);
+//            while(true){ 
+//                System.out.print("> "); 
+//                String msg = scan.nextLine();
+//                
+//                if(msg.equalsIgnoreCase("exit")){ 
+//                    break; 
+//                }
+//                
+//                if(msg.equalsIgnoreCase("login wallace")){
+//                    x.login("wallace", "abcd");
+//                }
+//                
+//                if(msg.equalsIgnoreCase("login joana")){
+//                    x.login("joana", "1234");
+//                }
+//                
+//                x.sendChatMessage(msg); 
+//            }
+//        } catch (WatchDogException ex) {
+//            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (DirectoryException ex) {
+//            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 }

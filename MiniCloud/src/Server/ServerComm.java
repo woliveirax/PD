@@ -1,13 +1,11 @@
 package Server;
 
-import BD.DBConnection;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +49,7 @@ public class ServerComm extends Thread{
          
         try {
             // BIND TO THE SERVICE PORT
-            server = new ServerSocket(6002);
+            server = new ServerSocket(6001);
                     
 //            server.setSoTimeout(TIMEOUT);
             System.out.println ("Server started, ip: + " + 

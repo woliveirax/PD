@@ -66,8 +66,8 @@ public class DataObservable extends Observable implements UpdateType {
         return notificationService.getPort();
     }
     
-    public void login(String username, String password) throws IOException, Exception{
-        comm.login(username,password);
+    public boolean login(String username, String password) throws IOException, Exception{
+        return comm.login(username,password);
     }
     
     public void logout() throws IOException{

@@ -5,10 +5,6 @@
  */
 package Client.GUI;
 
-/**
- *
- * @author Skully
- */
 public class CloudRegister extends javax.swing.JFrame {
 
     /**
@@ -194,9 +190,9 @@ public class CloudRegister extends javax.swing.JFrame {
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // TODO add your handling code here:
-        CloudLogin login = new CloudLogin();
-        this.setVisible(false);
-        login.setVisible(true);
+//        CloudLogin login = new CloudLogin();
+//        this.setVisible(false);
+//        login.setVisible(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed
@@ -210,9 +206,9 @@ public class CloudRegister extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
-        CloudLogin login = new CloudLogin();//send data as param
-        this.setVisible(false);
-        login.setVisible(true);
+//        CloudLogin login = new CloudLogin();//send data as param
+//        this.setVisible(false);
+//        login.setVisible(true);
     }//GEN-LAST:event_btnSaveActionPerformed
 
     /**
