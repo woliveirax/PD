@@ -3,6 +3,8 @@ package Client.Threads;
 import Client.DataObservable;
 import comm.Packets.AddFileRequest;
 import comm.Packets.AddUser;
+import comm.Packets.InitialFilePackage;
+import comm.Packets.InitialFilePackageNotification;
 import comm.Packets.KeepAlive;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.RemoveUser;
@@ -16,7 +18,6 @@ import java.net.SocketException;
 
 public class KeepAliveThread extends Thread {
     private final static int BUFFER_SIZE = 4096;
-    private final static int MIN_BUFFER_SIZE = 10;
     
     private boolean CONTINUE;
     private final DatagramSocket socket;
@@ -77,6 +78,10 @@ public class KeepAliveThread extends Thread {
             
         } else if (obj instanceof AddUser){
             observable.addUserToFileList(((AddUser)obj).getUsername());
+            socket.send(packet);
+            
+        } else if (obj instanceof InitialFilePackageNotification){
+            observable.updateUserFiles(((InitialFilePackageNotification) obj).getUsername());
             socket.send(packet);
         }
     }

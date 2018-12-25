@@ -5,7 +5,9 @@
  */
 package comm;
 
-public class FileData {
+import java.io.Serializable;
+
+public class FileData implements Serializable {
     private String name;
     private long size;
 

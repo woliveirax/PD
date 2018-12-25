@@ -27,26 +27,20 @@ public class DataObservable extends Observable implements UpdateType {
     private String notification;
     
     
-    public DataObservable(String ipAddress, int port) 
+    public DataObservable() 
             throws WatchDogException, IOException, DirectoryException
     {
         try{
-            userdata = new UserData();
-            chat = null;
-            notification = null;
-            
-            watchdog = new WatchDog(this);
-            uploadService = new UploadService(this);
-            notificationService = new NotificationThread(this);
-                    
-            comm = new CommunicationHandler(port, ipAddress, this);
-            keepAlive = new KeepAliveThread(this);
-            
-            keepAlive.start();
+           initData();
             
         }catch (WatchDogException ex) {
             throw ex;
         }
+    }
+    
+    //Connection and processes handlers
+    public void startServerConnection(String ipAddress, int port) throws IOException{
+        comm = new CommunicationHandler(port, ipAddress, this);
     }
     
     public void startServices(){
@@ -54,6 +48,7 @@ public class DataObservable extends Observable implements UpdateType {
         uploadService.start();
     }
     
+    //Get connection settings
     public int getKeepAlivePort(){
         return keepAlive.getPort();
     }
@@ -66,14 +61,20 @@ public class DataObservable extends Observable implements UpdateType {
         return notificationService.getPort();
     }
     
+    //Login/logout
     public boolean login(String username, String password) throws IOException, Exception{
         return comm.login(username,password);
     }
     
     public void logout() throws IOException{
-        comm.logout();
-        
-        shutdownClient();
+        try {
+            comm.logout();
+            
+            shutdownClient();
+            initData();
+        } catch (WatchDogException ex) {
+        } catch (DirectoryException ex) {
+        }
     }
     
     //UserData funcs
@@ -118,6 +119,14 @@ public class DataObservable extends Observable implements UpdateType {
     
     public void setUploadPath(File file) throws InvalidDirectoryException{
         userdata.setUploadPath(file);
+        
+        try{
+            comm.sendInitialFilePackage();
+        }catch(IOException e){
+            System.out.println("erro ao enviar inital file package: " + e);
+        }
+        
+        startServices();
     }
     
     public void setDownloadPath(File file) throws InvalidDirectoryException{
@@ -131,9 +140,8 @@ public class DataObservable extends Observable implements UpdateType {
     public File getUploadPath(){
         return userdata.getUploadPath();
     }
-    //TODO: method to send all info from files to server at once.
     
-    //File Handling
+    //Requests
     public void addFileRequest(File file) throws IOException{
         FileData myFile = new FileData(file.getName(), file.length());
         comm.addFileRequest(myFile);
@@ -141,7 +149,7 @@ public class DataObservable extends Observable implements UpdateType {
     
     public void removeFileRequest(File file) throws IOException{
         FileData myFile = new FileData(file.getName(), file.length());
-        comm.removeFileRequest(chat);
+        comm.removeFileRequest(myFile.getName());
     }
     
     public void updateFileRequest(File file) throws IOException{
@@ -171,8 +179,35 @@ public class DataObservable extends Observable implements UpdateType {
         return comm.getTransferHistory(username);
     }
     
+    public void setFileList(ArrayList<CloudData> list){
+        userdata.setFileList(list);
+        
+        setChanged();
+        notifyObservers(FILE_UPDATE);
+    }
+    
     public void addFileTransfer(TransferInfo info) throws IOException{
         comm.addFileTransfer(info);
+    }
+    
+    public void updateUserFiles(String username) throws Exception{
+        userdata.updateUserFiles(username, comm.getUserData(username).getFiles());
+        
+        setChanged();
+        notifyObservers(FILE_UPDATE);
+    }
+    
+    private void initData() throws WatchDogException, DirectoryException, IOException {
+        userdata = new UserData();
+        chat = null;
+        notification = null;
+
+        watchdog = new WatchDog(this);
+        uploadService = new UploadService(this);
+        notificationService = new NotificationThread(this);
+
+        keepAlive = new KeepAliveThread(this);
+        keepAlive.start();
     }
     
     public void shutdownClient(){

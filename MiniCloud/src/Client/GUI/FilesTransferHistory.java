@@ -137,9 +137,9 @@ public class FilesTransferHistory extends javax.swing.JFrame {
 
     private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
         // TODO add your handling code here:
-        CloudMainScreen mainScreen = new  CloudMainScreen();
-        this.setVisible(false);
-        mainScreen.setVisible(true);
+//        CloudMainScreen mainScreen = new  CloudMainScreen();
+//        this.setVisible(false);
+//        mainScreen.setVisible(true);
     }//GEN-LAST:event_btnReturnActionPerformed
 
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed

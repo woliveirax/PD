@@ -2,9 +2,10 @@ package comm.Packets;
 
 import comm.FileData;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class InitialFilePackage {
+public class InitialFilePackage implements Serializable{
     final private ArrayList<FileData> files;
     
     public InitialFilePackage(String directory){

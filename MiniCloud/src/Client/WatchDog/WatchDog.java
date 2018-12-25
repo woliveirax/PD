@@ -1,6 +1,7 @@
 package Client.WatchDog;
 
 import Client.DataObservable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -12,8 +13,6 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class WatchDog extends Thread{
@@ -21,6 +20,7 @@ public class WatchDog extends Thread{
     private DataObservable data;
     private WatchService watcher;
     private WatchKey key;
+    private File currentPath;
     private boolean CONTINUE = true;
     
     
@@ -29,15 +29,6 @@ public class WatchDog extends Thread{
         
         try{
             watcher = FileSystems.getDefault().newWatchService();
-        }catch(IOException e){
-            throw new WatchDogRuntimeException("Error: "+e);
-        }
-    }
-    
-    public WatchDog(){//TODO: Remove this constructor
-        try{
-            watcher = FileSystems.getDefault().newWatchService();
-            register(Paths.get("C:\\Users\\Olympus\\Desktop\\"));
         }catch(IOException e){
             throw new WatchDogRuntimeException("Error: "+e);
         }
@@ -66,9 +57,24 @@ public class WatchDog extends Thread{
         this.interrupt();
     }
     
+    private File getFile(String filename){
+        return new File(currentPath.getAbsolutePath() + File.separator + filename);
+    }
+    
     @Override
     public void run(){
         WatchKey key;
+        
+        try {
+            register(data.getUploadPath().toPath());
+            currentPath = data.getUploadPath();
+            
+        } catch (IOException ex) {
+            try {
+                data.logout();
+            } catch (IOException ex1) {
+            }
+        }
         
         for(;CONTINUE;){
             try {
@@ -87,20 +93,15 @@ public class WatchDog extends Thread{
                     continue;
 
                 WatchEvent<Path> ev = cast(event);
-                Path name = ev.context();
-                
-                System.out.println(
-                  "Event kind:" + event.kind() 
-                    + ". File affected: " + event.context() + ".");
-                
+                String name = ev.context().getFileName().toString();
                 
                 try{
                     if (ENTRY_CREATE.equals(kind)) {
-                    data.addFileRequest(ev.context().toFile());
+                        data.addFileRequest(getFile(name));
                     } else if (ENTRY_DELETE.equals(kind)) {
-                        data.removeFileRequest(ev.context().toFile());
+                        data.removeFileRequest(getFile(name));
                     } else if (ENTRY_MODIFY.equals(kind)) {
-                        data.updateFileRequest(ev.context().toFile());
+                        data.updateFileRequest(getFile(name));
                     }
                 } catch (IOException ex) {
                     System.out.println("nothing we can do here");

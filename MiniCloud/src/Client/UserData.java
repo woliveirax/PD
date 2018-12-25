@@ -35,6 +35,14 @@ public class UserData implements Serializable {
         }
     }
     
+    public void updateUserFiles(String username, ArrayList<FileData> files){
+        for(CloudData data : fileList)
+            if(data.getUser().compareTo(username) == 0){
+                data.setInitialFiles(files);
+                return;
+            }
+    }
+    
     private CloudData getUserData(String user){
         for(CloudData data : fileList)
             if(data.getUser().compareTo(user) == 0)
@@ -80,6 +88,10 @@ public class UserData implements Serializable {
     
     public ArrayList<CloudData> getFileList() {
         return (ArrayList<CloudData>)fileList;
+    }
+
+    public void setFileList(List<CloudData> fileList) {
+        this.fileList = fileList;
     }
     
     public void setDownloadPath(File file) throws InvalidDirectoryException {

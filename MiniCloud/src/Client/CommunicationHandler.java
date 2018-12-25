@@ -10,12 +10,10 @@ import comm.FileData;
 import comm.Packets.InitialFilePackage;
 import comm.LoginInfo;
 import comm.Packets.AddFileRequest;
-import comm.Packets.AddUser;
+import comm.Packets.DataMass;
 import comm.Packets.FileTransfersHistoryRequest;
 import comm.Packets.GetUserData;
-import comm.Packets.KeepAlive;
 import comm.Packets.RemoveFileRequest;
-import comm.Packets.RemoveUser;
 import comm.Packets.TransferHistoryPackage;
 import comm.Packets.TransferInfo;
 import comm.Packets.UpdateFileRequest;
@@ -27,9 +25,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class CommunicationHandler {
-    private Socket socket;
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
+    private final Socket socket;
+    private final ObjectInputStream in;
+    private final ObjectOutputStream out;
     
     private final DataObservable observable;
     
@@ -42,32 +40,6 @@ public class CommunicationHandler {
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
 
-    }
-    
-    private void sendMsg(Object msg) throws IOException{
-        try{
-            out.writeObject(msg);
-            out.flush();
-        }catch(IOException e){
-            throw e;
-        }        
-    }
-    
-    private Object receiveMsg() 
-            throws IOException
-    {
-        try{
-            return in.readObject();
-            
-        }catch(IOException e){
-            throw e;
-        } catch (ClassNotFoundException ex) {
-            throw new IOException("Class not found!");
-        }
-    }
-    
-    public void sendChatMessage(String message) throws IOException{
-        sendMsg(message);
     }
     
     public boolean login(String user, String password) throws IOException, Exception{
@@ -92,6 +64,11 @@ public class CommunicationHandler {
         sendMsg(new Logout());
     }
     
+    //Requests
+    public void sendChatMessage(String message) throws IOException{
+        sendMsg(message);
+    }
+    
     public void addFileRequest(FileData file) throws IOException{
         sendMsg(new AddFileRequest(file));
     }
@@ -102,6 +79,14 @@ public class CommunicationHandler {
     
     public void updateFileRequest(FileData file) throws IOException{
         sendMsg(new UpdateFileRequest(file));
+    }
+    
+    public void addFileTransfer(TransferInfo info) throws IOException{
+        sendMsg(info);
+    }
+    
+    public void sendInitialFilePackage() throws IOException{
+        sendMsg(new InitialFilePackage(observable.getUploadPath().toString()));
     }
     
     public ArrayList<TransferInfo> getTransferHistory(String username) throws IOException, Exception{
@@ -118,14 +103,6 @@ public class CommunicationHandler {
         }
     }
     
-    public void addFileTransfer(TransferInfo info) throws IOException{
-        sendMsg(info);
-    }
-    
-    public void sendInitialFilePackage() throws IOException{
-        sendMsg(new InitialFilePackage(observable.getUploadPath().toString()));
-    }
-    
     public CloudData getUserData(String username) throws IOException, Exception{
         sendMsg(new GetUserData(username));
         
@@ -136,6 +113,39 @@ public class CommunicationHandler {
             throw ((Exception)obj);
         } else {
             throw new Exception("Could not handle Cloud Data on get user data!");
+        }
+    }
+    
+    public void getAllDataFromServer() throws IOException, Exception{
+        sendMsg(new DataMass(null));
+        
+        Object obj = receiveMsg();
+        if(obj instanceof DataMass){
+            
+        } else {
+            throw (Exception) obj;
+        }
+    }
+    
+    private void sendMsg(Object msg) throws IOException{
+        try{
+            out.writeObject(msg);
+            out.flush();
+        }catch(IOException e){
+            throw e;
+        }        
+    }
+    
+    private Object receiveMsg() 
+            throws IOException
+    {
+        try{
+            return in.readObject();
+            
+        }catch(IOException e){
+            throw e;
+        } catch (ClassNotFoundException ex) {
+            throw new IOException("Class not found!");
         }
     }
     

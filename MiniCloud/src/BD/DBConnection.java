@@ -260,6 +260,7 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             PreparedStatement st = conn.prepareStatement(UPDATE_FILE);
             st.setLong(1, file.getSize());
             st.setInt(2, user.getId());
+            st.setString(3,file.getName());
 
             st.executeUpdate();
 

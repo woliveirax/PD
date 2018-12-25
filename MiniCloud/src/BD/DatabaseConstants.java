@@ -20,7 +20,7 @@ public interface DatabaseConstants {
     final static String GET_FILE = "SELECT * FROM miniclouddb.Files WHERE owner = ? AND name = ?;";
     final static String ADD_FILE = "INSERT INTO miniclouddb.Files (owner, name, size) VALUES (?,?,?);";
     final static String REMOVE_FILE = "DELETE FROM miniclouddb.Files WHERE owner = ? AND name = ?;";
-    final static String UPDATE_FILE = "UPDATE miniclouddb.Files SET size = ? WHERE owner = ?;";
+    final static String UPDATE_FILE = "UPDATE miniclouddb.Files SET size = ? WHERE owner = ? AND name = ?;";
     
     final static String ADD_TRANSFER_HISTORY = "INSERT INTO miniclouddb.History (source, destination, date, filename) VALUES (?,?,?,?);";
     final static String GET_DOWNLOAD_HISTORY = "SELECT tab1.username AS source, tab2.username AS dest, date, filename"

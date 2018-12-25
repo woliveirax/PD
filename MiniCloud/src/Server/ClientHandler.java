@@ -8,6 +8,9 @@ import comm.FileData;
 import comm.Packets.InitialFilePackage;
 import comm.Packets.KeepAlive;
 import comm.LoginInfo;
+import comm.Packets.AddFileRequest;
+import comm.Packets.RemoveFileRequest;
+import comm.Packets.UpdateFileRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -21,6 +24,9 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
 
 public class ClientHandler extends Thread {
 
@@ -28,6 +34,7 @@ public class ClientHandler extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private final Socket s;
+    private Socket notification;
     private String username;
     private boolean CONTINUE;
 
@@ -45,6 +52,19 @@ public class ClientHandler extends Thread {
             s.close();
         } catch (IOException e) {
             System.out.println("could not close the socket!");
+        }
+    }
+    
+    public void startNotificationSocket(LoginInfo info) {
+        try {
+            notification = new Socket(s.getInetAddress(),info.getNotificationPort());
+        } catch (IOException ex) {
+            try {
+                serverObs.getDB().userLogout(username);
+            } catch (UserException | SQLException ex1) {
+                //Do nothing
+            }
+            this.exit();
         }
     }
 
@@ -156,7 +176,6 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         Object received;
-        Object toreturn;
 
         try {//initialize stream reader and writer
             out = new ObjectOutputStream(s.getOutputStream());
@@ -188,6 +207,7 @@ public class ClientHandler extends Thread {
                 } else if (received instanceof LoginInfo) {//TODO: compare to all object types
                     try{
                         serverObs.getDB().userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
+                        //startNotificationSocket((LoginInfo) received);
                     }catch(UserException | SQLException e){
                         writeObject(e);
                     }
@@ -197,24 +217,47 @@ public class ClientHandler extends Thread {
                     serverObs.addLoggedThread(this);
 
                 } else if (received instanceof InitialFilePackage) {
+                    System.out.println("Initial file");
                     InitialFilePackage filePackages = (InitialFilePackage)received;
                     for(FileData file : filePackages.getFiles()){
                         try {
                             serverObs.getDB().addFile(this.username, file.getName(),file.getSize());
                         } catch (UserException | SQLException | FileException ex) {
-                            System.err.println(ex.getCause());
+                            System.err.println(ex);
                         }
                     }
                     //TODO: missing notify for updateClientsFilesInfo throught UDP and TCP
-                } else if (received instanceof KeepAlive) {
+                } else if (received instanceof AddFileRequest) {
                     try{
-                        serverObs.getDB().setStrikes(this.username,0);
-                    }catch(SQLException | UserException e){
-                        System.err.println(e);
+                        System.out.println("Adding file");
+                        FileData file = ((AddFileRequest)received).getFile();
+                        serverObs.getDB().addFile(username, file.getName(),file.getSize());
+                        //serverObs.getDB().setStrikes(this.username,0);
+                    }catch(SQLException | UserException | FileException e){
+                        System.out.println(e);
+                        writeObject(e);
                     }
-                    //update DB
-                } //else if (received instanceof ) {
-                    //updateClientsFilesInfo throught UDP and TCP
+                    
+                } else if (received instanceof RemoveFileRequest) {
+                    try{
+                        System.out.println("Removing");
+                        serverObs.getDB().removeFile(username, ((RemoveFileRequest)received).getFilename());
+                        //serverObs.getDB().setStrikes(this.username,0);
+                    }catch(SQLException | UserException | FileException e){
+                        System.out.println(e);
+                        writeObject(e);
+                    }
+                } else if (received instanceof UpdateFileRequest) {
+                    try{
+                        System.out.println("updating");
+                        FileData file = ((UpdateFileRequest)received).getFile();
+                        serverObs.getDB().updateFile(username,file);
+                        //serverObs.getDB().setStrikes(this.username,0);
+                    }catch(SQLException | UserException | FileException e){
+                        System.out.println(e);
+                        writeObject(e);
+                    }
+                }
                 //}
             }catch (IOException e) {
                 System.out.println("IO" + e);

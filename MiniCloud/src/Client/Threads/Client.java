@@ -4,6 +4,7 @@ import Client.DataObservable;
 import Client.GUI.CloudLogin;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -16,9 +17,15 @@ public class Client {
 //        try {
             //CloudLogin interfaceStartUp = new CloudLogin();
             //interfaceStartUp.setVisible(true);
-            DataObservable x = new DataObservable("project-soralis.pro",6001);
+            DataObservable x = new DataObservable();
+            x.startServerConnection("project-soralis.pro", 6001);
             
-            new CloudLogin(x).setVisible(true);
+            try{
+                x.login("wallace", "abcd");
+            }catch(Exception e){
+                System.out.println(e);
+            }
+            x.setUploadPath(new File("C:\\Users\\Skully\\Downloads\\Upload"));
             
 //            Scanner scan = new Scanner(System.in);
 //            while(true){ 
