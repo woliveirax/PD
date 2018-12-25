@@ -1,5 +1,6 @@
 package Client;
 
+import comm.Packets.TransferInfo;
 import Exceptions.InvalidDirectoryException;
 import comm.CloudData;
 import comm.FileData;
@@ -16,6 +17,7 @@ public class UserData implements Serializable {
     private List<CloudData> fileList;
     
     public UserData() {
+        fileList = new ArrayList<>();
     }
     
     public void addNewUser(CloudData user){

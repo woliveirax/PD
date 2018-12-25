@@ -12,6 +12,8 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class WatchDog extends Thread{
@@ -90,18 +92,24 @@ public class WatchDog extends Thread{
                 System.out.println(
                   "Event kind:" + event.kind() 
                     + ". File affected: " + event.context() + ".");
-                if (ENTRY_CREATE.equals(kind)) {
-                    //TODO: data.addFile(ev.context().toFile());
-                } else if (ENTRY_DELETE.equals(kind)) {
-                    //TODO: data.removeFile(ev.context().toFile());
-                } else if (ENTRY_MODIFY.equals(kind)) {
-                    //TODO: data.updateFile(ev.context().toFile());
+                
+                
+                try{
+                    if (ENTRY_CREATE.equals(kind)) {
+                    data.addFileRequest(ev.context().toFile());
+                    } else if (ENTRY_DELETE.equals(kind)) {
+                        data.removeFileRequest(ev.context().toFile());
+                    } else if (ENTRY_MODIFY.equals(kind)) {
+                        data.updateFileRequest(ev.context().toFile());
+                    }
+                } catch (IOException ex) {
+                    System.out.println("nothing we can do here");
                 }
             }
-
+            
             // reset key and remove from set if directory no longer accessible
             boolean valid = key.reset();
-            if (!valid) {
+            if (!valid) { //TODO: Figure a way to handle if this happens
                 break;
             }
         }

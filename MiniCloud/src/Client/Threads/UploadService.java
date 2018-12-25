@@ -14,11 +14,14 @@ import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class UploadService extends Thread {
     private static final int MAX_PACKET_SIZE = 10000;
     private static final int TIMEOUT = 2000;
+    private boolean CONTINUE;
     private final DataObservable observable;
     
     private final ServerSocket server;
@@ -30,6 +33,7 @@ public class UploadService extends Thread {
         throws DirectoryException, IOException
     {
         observable = obs;
+        CONTINUE = true;
         
         server = new ServerSocket(0, 5);
     }
@@ -54,6 +58,15 @@ public class UploadService extends Thread {
         if(!directory.canWrite()){
             throw new DirectoryException("Can not write to: \'" + 
                     directory.getPath() + "\' check permissions!");
+        }
+    }
+    
+    public void exit(){
+        try {
+            CONTINUE = false;
+            server.close();
+        } catch (IOException ex) {
+            System.out.println("This thing refuses to shutdown!... how dare they!");
         }
     }
     
@@ -129,7 +142,7 @@ public class UploadService extends Thread {
         Socket clientSocket = null;
         try{
             //TODO: add 1 to file upload counter
-            while(true){
+            while(CONTINUE){
                 clientSocket = server.accept();
                 HandleRequest(clientSocket);
             }

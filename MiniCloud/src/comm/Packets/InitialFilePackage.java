@@ -1,14 +1,13 @@
-package comm;
+package comm.Packets;
 
+import comm.FileData;
 import java.io.File;
 import java.util.ArrayList;
 
 public class InitialFilePackage {
-    final private String username;
     final private ArrayList<FileData> files;
     
-    public InitialFilePackage(String userame, String directory){
-        this.username = userame;
+    public InitialFilePackage(String directory){
         files = new ArrayList<>();
         
         File[] temp = new File(directory).listFiles();
@@ -19,9 +18,5 @@ public class InitialFilePackage {
     
     public ArrayList<FileData> getFiles() {
         return files;
-    }
-
-    public String getUsername() {
-        return username;
     }
 }

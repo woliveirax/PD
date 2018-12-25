@@ -10,12 +10,12 @@ import java.util.logging.Logger;
 
 public class Client {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         
         try {
             //CloudLogin interfaceStartUp = new CloudLogin();
             //interfaceStartUp.setVisible(true);
-            DataObservable x = new DataObservable("project-soralis.pro",6001);
+            DataObservable x = new DataObservable("project-soralis.pro",6002);
             
             Scanner scan = new Scanner(System.in);
             while(true){ 

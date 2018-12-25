@@ -51,7 +51,7 @@ public class ServerComm extends Thread{
          
         try {
             // BIND TO THE SERVICE PORT
-            server = new ServerSocket(6001);
+            server = new ServerSocket(6002);
                     
 //            server.setSoTimeout(TIMEOUT);
             System.out.println ("Server started, ip: + " + 

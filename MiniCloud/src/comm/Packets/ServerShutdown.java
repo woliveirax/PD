@@ -1,4 +1,4 @@
-package comm.AuthPackets;
+package comm.Packets;
 
 import java.io.Serializable;
 

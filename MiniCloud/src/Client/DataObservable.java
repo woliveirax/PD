@@ -1,6 +1,6 @@
 package Client;
 
-import Client.Threads.CommunicationThread;
+import comm.Packets.TransferInfo;
 import Client.Threads.KeepAliveThread;
 import Client.Threads.NotificationThread;
 import Client.Threads.UploadService;
@@ -15,16 +15,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 
-public class DataObservable extends Observable {
-    WatchDog watchdog;
-    CommunicationThread comm;
-    KeepAliveThread keepAlive;
-    UploadService uploadService;
-    NotificationThread notificationService;
+public class DataObservable extends Observable implements UpdateType {
+    private WatchDog watchdog;
+    private CommunicationHandler comm;
+    private KeepAliveThread keepAlive;
+    private UploadService uploadService;
+    private NotificationThread notificationService;
     
-    UserData userdata;
-    String chat;
-    String notification;
+    private UserData userdata;
+    private String chat;
+    private String notification;
     
     
     public DataObservable(String ipAddress, int port) 
@@ -39,10 +39,9 @@ public class DataObservable extends Observable {
             uploadService = new UploadService(this);
             notificationService = new NotificationThread(this);
                     
-            comm = new CommunicationThread(port, ipAddress, this);
+            comm = new CommunicationHandler(port, ipAddress, this);
             keepAlive = new KeepAliveThread(this);
             
-            comm.start();
             keepAlive.start();
             
         }catch (WatchDogException ex) {
@@ -67,38 +66,50 @@ public class DataObservable extends Observable {
         return notificationService.getPort();
     }
     
-    public void login(String username, String password) throws IOException{
+    public void login(String username, String password) throws IOException, Exception{
         comm.login(username,password);
     }
     
     public void logout() throws IOException{
         comm.logout();
+        
+        shutdownClient();
     }
     
     //UserData funcs
+    public void updateFileFromUser(String user, FileData file){
+        userdata.updateFileFromUser(user, file);
+        
+        setChanged();
+        notifyObservers(FILE_UPDATE);
+    }
+    
     public void removeFileFromUser(String user, String filename){
         userdata.removeFileFromUser(user, filename);
         
         setChanged();
-        notifyObservers();
+        notifyObservers(FILE_UPDATE);
     }
     
     public void addFileFromUser(String user, FileData file){
         userdata.addFileToUser(user, file);
+        
+        setChanged();
+        notifyObservers(FILE_UPDATE);
     }
     
     public void removeUserFromFileList(String username){
         userdata.RemoveUser(username);
         
         setChanged();
-        notifyObservers();
+        notifyObservers(FILE_UPDATE);
     }
     
-    public void addUserToFileList(CloudData data){
-        userdata.addNewUser(data);
+    public void addUserToFileList(String username) throws Exception{
+        userdata.addNewUser(comm.getUserData(username));
         
         setChanged();
-        notifyObservers();
+        notifyObservers(FILE_UPDATE);
     }
     
     public ArrayList<CloudData> getUsers(){
@@ -120,22 +131,22 @@ public class DataObservable extends Observable {
     public File getUploadPath(){
         return userdata.getUploadPath();
     }
-    //TODO: Create comm thread with methods to send data such as add files, remove, update.
-    
     //TODO: method to send all info from files to server at once.
     
-    //TODO: add this to server
     //File Handling
-    public void addFileRequest(File file){
-        //TODO: Send addFileRequest
+    public void addFileRequest(File file) throws IOException{
+        FileData myFile = new FileData(file.getName(), file.length());
+        comm.addFileRequest(myFile);
     }
     
-    public void removeFileRequest(File file){
-        //TODO: Send removeFileRequest
+    public void removeFileRequest(File file) throws IOException{
+        FileData myFile = new FileData(file.getName(), file.length());
+        comm.removeFileRequest(chat);
     }
     
-    public void updateFileRequest(File file){
-        //TODO: Send UpdateFileInfoRequest
+    public void updateFileRequest(File file) throws IOException{
+        FileData myFile = new FileData(file.getName(), file.length());
+        comm.updateFileRequest(myFile);
     }
     
     public void sendChatMessage(String msg) throws IOException{
@@ -146,15 +157,28 @@ public class DataObservable extends Observable {
         chat = msg;
         
         setChanged();
-        notifyObservers();
+        notifyObservers(CHAT_UPDATE);
     }
     
     public synchronized void receiveNotification(String notification){
         this.notification = notification;
         
         setChanged();
-        notifyObservers();
+        notifyObservers(NOTIFICATION_UPDATE);
     }
     
-    //TODO: gere historicos
+    public  ArrayList<TransferInfo> getTransferHistory(String username) throws Exception{
+        return comm.getTransferHistory(username);
+    }
+    
+    public void addFileTransfer(TransferInfo info) throws IOException{
+        comm.addFileTransfer(info);
+    }
+    
+    public void shutdownClient(){
+        watchdog.exit();
+        uploadService.exit();
+        notificationService.exit();
+        keepAlive.exit();
+    }
 }

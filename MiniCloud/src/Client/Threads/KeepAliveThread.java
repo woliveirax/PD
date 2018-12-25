@@ -1,8 +1,12 @@
 package Client.Threads;
 
 import Client.DataObservable;
-import comm.KeepAlive;
-import comm.RefreshData;
+import comm.Packets.AddFileRequest;
+import comm.Packets.AddUser;
+import comm.Packets.KeepAlive;
+import comm.Packets.RemoveFileRequest;
+import comm.Packets.RemoveUser;
+import comm.Packets.UpdateFileRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,28 +39,44 @@ public class KeepAliveThread extends Thread {
         this.CONTINUE = CONTINUE;
     }
     
-    public void exitThread(){
+    public void exit(){
         setCONTINUE(false);
         socket.close();
     }
     
     private void handlePackets(DatagramPacket packet)
-            throws IOException, ClassNotFoundException
+            throws IOException, ClassNotFoundException, Exception
     {    
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData()));
         Object obj = in.readObject();
         
         if(obj instanceof String){
-                    System.out.println((String)obj);
+                    observable.sendChatMessage((String)obj);
                     
         } else if(obj instanceof KeepAlive){
-            packet.setData(new byte[MIN_BUFFER_SIZE]);
             socket.send(packet);
         }
-        else if(obj instanceof RefreshData){
-            //TODO: Waiting on teachers reply
+        else if(obj instanceof AddFileRequest){
+            observable.addFileFromUser(((AddFileRequest)obj).getUsername(),
+                                        ((AddFileRequest)obj).getFile());
+            socket.send(packet);
+        
+        } else if (obj instanceof RemoveFileRequest) {
+            observable.removeFileFromUser(((RemoveFileRequest)obj).getUsername(),
+                                        ((RemoveFileRequest)obj).getFilename());
+            socket.send(packet);
+        
+        } else if (obj instanceof UpdateFileRequest) {
+            observable.updateFileFromUser(((UpdateFileRequest)obj).getUsername(),
+                                        ((UpdateFileRequest)obj).getFile());
+            socket.send(packet);
+        
+        } else if (obj instanceof RemoveUser){
+            observable.removeUserFromFileList(((RemoveUser)obj).getUsername());
+            socket.send(packet);
             
-            packet.setData(new byte[MIN_BUFFER_SIZE]);
+        } else if (obj instanceof AddUser){
+            observable.addUserToFileList(((AddUser)obj).getUsername());
             socket.send(packet);
         }
     }
@@ -73,6 +93,8 @@ public class KeepAliveThread extends Thread {
 
             }catch(IOException | ClassNotFoundException e){
                 System.out.println("Erro:" + e);
+            } catch (Exception ex) {
+                System.out.println(ex);
             }
         }
     }

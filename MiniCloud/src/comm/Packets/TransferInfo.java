@@ -1,9 +1,9 @@
-package BD;
+package comm.Packets;
 
-import java.sql.Date;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class TransferInfo {
+public class TransferInfo implements Serializable{
     private final Timestamp date;
     private final String sourceName;
     private final String destinataryName;

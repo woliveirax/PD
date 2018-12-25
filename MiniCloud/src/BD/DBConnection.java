@@ -1,5 +1,6 @@
 package BD;
 
+import comm.Packets.TransferInfo;
 import Exceptions.FileException;
 import Exceptions.UserException;
 import comm.CloudData;
@@ -443,7 +444,30 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             throw e;
         }
     }
+    
+    public CloudData getUserData(String username)
+            throws SQLException, UserException {
+        try {
+            PreparedStatement st = conn.prepareStatement(GET_LOGGED_USER_BY_NAME);
+            st.setString(1, username);
+            st.executeQuery();
 
+            ResultSet rs = st.getResultSet();
+            if (rs.next()) {
+                CloudData user = new CloudData(
+                        rs.getString("username"),
+                        rs.getString("ipAddress"),
+                        rs.getInt("transferPort"));
+
+                user.setInitialFiles(getFilesFromUser(username));
+                return user;
+            }
+            throw new UserException("User is not logged in the system!");
+        } catch (SQLException e) {
+            throw e;
+        }
+    }
+    
     //TODO: remove this main
     public static void main(String[] args) {
         try {
