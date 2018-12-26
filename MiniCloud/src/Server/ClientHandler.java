@@ -30,8 +30,6 @@ public class ClientHandler extends Thread {
     private String username;
     private boolean CONTINUE;
 
-    private final int TIMEOUT = 5000;
-
     public ClientHandler(Socket s, ServerObservable serverObs) {
         this.s = s;
         this.serverObs = serverObs;

@@ -136,6 +136,7 @@ public class ServerKeepAlive extends Thread {
                 for(ClientHandler tcpUser : observable.getLoggedUserThreads()){
                     if (user.getUsername().equals(tcpUser.getUsername())) {
                         it.remove();
+                        break;
                     }
                 }
             }

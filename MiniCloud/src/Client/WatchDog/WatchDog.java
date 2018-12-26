@@ -4,6 +4,8 @@ import Client.DataObservable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
@@ -95,13 +97,17 @@ public class WatchDog extends Thread{
                 WatchEvent<Path> ev = cast(event);
                 String name = ev.context().getFileName().toString();
                 
+                
                 try{
                     if (ENTRY_CREATE.equals(kind)) {
-                        data.addFileRequest(getFile(name));
+                        if(Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
+                            data.addFileRequest(getFile(name));
                     } else if (ENTRY_DELETE.equals(kind)) {
-                        data.removeFileRequest(getFile(name));
+                        if(Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
+                            data.removeFileRequest(getFile(name));
                     } else if (ENTRY_MODIFY.equals(kind)) {
-                        data.updateFileRequest(getFile(name));
+                        if(Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
+                            data.updateFileRequest(getFile(name));
                     }
                 } catch (IOException ex) {
                     System.out.println("nothing we can do here");

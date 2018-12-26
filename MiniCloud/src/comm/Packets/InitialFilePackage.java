@@ -14,7 +14,8 @@ public class InitialFilePackage implements Serializable{
         File[] temp = new File(directory).listFiles();
         
         for(File file : temp)
-            files.add(new FileData(file.getName(), file.length()));
+            if(!file.isDirectory())
+                files.add(new FileData(file.getName(), file.length()));
     }
     
     public ArrayList<FileData> getFiles() {

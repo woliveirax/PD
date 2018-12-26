@@ -86,7 +86,9 @@ public class CommunicationHandler {
     }
     
     public void sendInitialFilePackage() throws IOException{
-        sendMsg(new InitialFilePackage(observable.getUploadPath().toString()));
+        InitialFilePackage files = new InitialFilePackage(observable.getUploadPath().toString());
+        if(files.getFiles().size() > 0)
+            sendMsg(files);
     }
     
     public ArrayList<TransferInfo> getTransferHistory(String username) throws IOException, Exception{
