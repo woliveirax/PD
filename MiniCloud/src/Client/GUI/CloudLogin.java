@@ -1,29 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Client.GUI;
 
 import Client.DataObservable;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import Exceptions.InvalidDirectoryException;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
-/**
- *
- * @author Skully
- */
+
 public class CloudLogin extends javax.swing.JFrame {
     
-    private DataObservable observable;
-    CloudMainScreen mainScreen;
+    private final DataObservable obs;
+    private JFileChooser chooser;
     
-    public CloudLogin(DataObservable observable) {
-        initComponents();
-        
-        this.observable = observable;
-        mainScreen = new  CloudMainScreen(observable);
+    public CloudLogin(DataObservable obs) {
+            initComponents();
+            this.obs = obs;
     }
     
     @SuppressWarnings("unchecked")
@@ -42,6 +34,7 @@ public class CloudLogin extends javax.swing.JFrame {
         btnRegister = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setFocusable(false);
 
         btnLogin.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnLogin.setText("Login");
@@ -54,6 +47,7 @@ public class CloudLogin extends javax.swing.JFrame {
 
         loginPanel.setBackground(new java.awt.Color(200, 210, 255));
         loginPanel.setToolTipText("");
+        loginPanel.setFocusable(false);
         loginPanel.setName(""); // NOI18N
 
         labelUsername.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -65,11 +59,11 @@ public class CloudLogin extends javax.swing.JFrame {
         labelPassword.setText("Password");
 
         fieldUsername.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
-        fieldUsername.setText("Flinstones");
+        fieldUsername.setText("joana");
 
         btnLeave.setBackground(new java.awt.Color(255, 255, 255));
         btnLeave.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/High-contrast-system-log-out.png"))); // NOI18N
+        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/system-log-out.png"))); // NOI18N
         btnLeave.setText("Leave");
         btnLeave.setToolTipText("");
         btnLeave.setInheritsPopupMenu(true);
@@ -91,7 +85,7 @@ public class CloudLogin extends javax.swing.JFrame {
             .addGroup(titlePanelLayout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(labelTitle)
-                .addContainerGap(314, Short.MAX_VALUE))
+                .addContainerGap(270, Short.MAX_VALUE))
         );
         titlePanelLayout.setVerticalGroup(
             titlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -102,7 +96,7 @@ public class CloudLogin extends javax.swing.JFrame {
         );
 
         fieldPassword.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
-        fieldPassword.setText("jPasswordField1");
+        fieldPassword.setText("1234");
         fieldPassword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fieldPasswordActionPerformed(evt);
@@ -120,14 +114,16 @@ public class CloudLogin extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnLeave))
                     .addGroup(loginPanelLayout.createSequentialGroup()
-                        .addGap(55, 55, 55)
-                        .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(labelUsername)
-                            .addComponent(labelPassword))
-                        .addGap(47, 47, 47)
+                        .addGap(56, 56, 56)
                         .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(fieldUsername)
-                            .addComponent(fieldPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginPanelLayout.createSequentialGroup()
+                                .addComponent(labelPassword)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(fieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(loginPanelLayout.createSequentialGroup()
+                                .addComponent(labelUsername)
+                                .addGap(26, 26, 26)
+                                .addComponent(fieldUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         loginPanelLayout.setVerticalGroup(
@@ -137,15 +133,15 @@ public class CloudLogin extends javax.swing.JFrame {
                 .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnLeave, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(titlePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(31, 31, 31)
+                .addGap(30, 30, 30)
                 .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelUsername)
                     .addComponent(fieldUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33)
-                .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(32, 32, 32)
+                .addGroup(loginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelPassword)
                     .addComponent(fieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         btnRegister.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -188,22 +184,23 @@ public class CloudLogin extends javax.swing.JFrame {
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         try {
             // TODO add your handling code here:
-            if(observable.login(fieldUsername.getText(), fieldPassword.getSelectedText())){
+                obs.login(fieldUsername.getText(),new String(fieldPassword.getPassword()));
+                getDirectory("Choose your upload folder");
+                getDirectory("Choose your download folder");
+                CloudMainScreen mainScreen = new  CloudMainScreen(obs);
                 this.setVisible(false);
                 mainScreen.setVisible(true);
-            }
-        } catch (Exception ex) {
-            //TODO: show popup
+            }catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                              "Provide a valid authentication", 
+                              "Not valid", 
+                              JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed
-        try {
-            // TODO add your handling code here:
-            observable.logout();
-        } catch (IOException ex) {
-            //TODO: add error popup 
-        }
+        obs.shutdownClient();//TODO check if this the right method
+        System.exit(0);
     }//GEN-LAST:event_btnLeaveActionPerformed
 
     private void fieldPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldPasswordActionPerformed
@@ -215,15 +212,38 @@ public class CloudLogin extends javax.swing.JFrame {
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         // TODO add your handling code here:
-        CloudRegister register = new CloudRegister();
+        CloudRegister register = new CloudRegister(obs,this);
         this.setVisible(false);
         register.setVisible(true);
 
     }//GEN-LAST:event_btnRegisterActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+
+    private void fieldUsername1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldUsername1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fieldUsername1ActionPerformed
+
+    private File getDirectory(String msg)
+            throws InvalidDirectoryException
+    {
+        chooser = new JFileChooser();
+        
+        chooser.setCurrentDirectory(
+                new File(System.getProperty("user.home") + "/Desktop"));
+        
+        chooser.setDialogTitle(msg);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+        {
+            return chooser.getCurrentDirectory();
+        }
+        else
+        {
+            throw new InvalidDirectoryException("Directory is not valid");
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLeave;
