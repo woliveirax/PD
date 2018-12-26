@@ -16,7 +16,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ClientHandler extends Thread {
 
@@ -46,6 +45,17 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             System.out.println("could not close the socket!");
         }
+        
+        try {
+            if(notification != null)
+                notification.close();
+        } catch (IOException e) {
+            System.out.println("could not close the socket!");
+        }
+    }
+    
+    public String getUsername(){
+        return username;
     }
     
     public void startNotificationSocket(LoginInfo info) {
@@ -82,57 +92,36 @@ public class ClientHandler extends Thread {
         }
         
         if (!found) {
-            ConnectedUser receiver = null;
+            ConnectedUser receiver;
             try {
                 receiver = serverObs.getDB().getSingleAuthenticatedUser(dest_name);
+                serverObs.sendUdpPacketToClient(receiver, msg);
             } catch (SQLException | UserException e) {
                 System.out.println(e);
             }
-            
-            //createDatagramAndSendIt(receiver,msg);
         }
     }
 
     private void sendGlobalMsg(String msg) {
         //à msg colocar no ini: nome do user:
-        ArrayList<ConnectedUser> outsideUsers = null;
+        ArrayList<ConnectedUser> outsideUsers;
         msg = username + ": " + msg;
 
         try {
             outsideUsers =  serverObs.getDB().getAuthenticatedUsers();
-        } catch (SQLException e) {
-        }
-
-        if (outsideUsers != null) { 
-            //gets the authenticated users from other servers
-            for (Iterator<ConnectedUser> it = outsideUsers.iterator(); it.hasNext();) {
-                ConnectedUser next = it.next();
-                for (ClientHandler connectedUser : serverObs.getLoggedUserThreads()) {
-                    if (next.getUsername().compareTo(connectedUser.username) == 0) {
-                        it.remove();
-                    }
+                    
+            for (ClientHandler user : serverObs.getLoggedUserThreads()){
+                try {
+                    user.writeObject(msg);
+                } catch (IOException ex) {
+                    System.out.println("Error sending chat message");
                 }
-            }
-            //sends the Msg via UDP to the users from other servers
-            for(ConnectedUser receiver : outsideUsers){ //Sends UDP msg
-                System.out.println("Envia UDP para: " + receiver);
-                 //createDatagramAndSendIt(receiver,msg);
             }
             
-            //sends the Msg via TCP to the logged users to this server
-            for (int i = 0; i < serverObs.getLoggedUserThreads().size(); i++) {
-                if (serverObs.getLoggedUserThreads().get(i).username.compareTo(username) != 0) {
-                    try {
-                        serverObs.getLoggedUserThreads().get(i).writeObject(msg);
-                    } catch (IOException e) {
-                        try {
-                            serverObs.getLoggedUserThreads().get(i).writeObject(
-                                    new IOException("Error while sending chat msg"));
-                        } catch (IOException ex) {
-                        }
-                    }
-                }
-            }
+            serverObs.broadcastUdpPacketToClients(msg);
+            
+        } catch(SQLException e){
+              System.out.println(e);
         }
     }
 
@@ -140,7 +129,7 @@ public class ClientHandler extends Thread {
     public void run() {
         Object received;
 
-        try {//initialize stream reader and writer
+        try {
             out = new ObjectOutputStream(s.getOutputStream());
             in = new ObjectInputStream(s.getInputStream());
         } catch (IOException e) {
@@ -223,7 +212,7 @@ public class ClientHandler extends Thread {
                 }
                 
             }catch (IOException e) {
-                System.out.println("IO" + e); //TODO: reply with stuff
+                this.exit();
             }catch (ClassNotFoundException e) {
                 System.out.println("CNF" + e);
             }

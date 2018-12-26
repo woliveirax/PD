@@ -159,15 +159,12 @@ public class DBConnection implements DBScripts, DatabaseConstants {
 
     public void userLogout(String username)
             throws UserException, SQLException {
-        try {
+        
             User user = getUser(username);
-            PreparedStatement stmt = conn.prepareStatement("DELETE FROM miniclouddb.authusers WHERE userId = ?");
-
+            PreparedStatement stmt = conn.prepareStatement(LOGOUT_USER);
+            
             stmt.setInt(1, user.getId());
             stmt.executeUpdate();
-        } catch (SQLIntegrityConstraintViolationException e) {
-            throw new UserException("Already logged in somewhere! please close the other instance and try again!");
-        }
     }
 
     public FileData getFile(String username, String filename)
@@ -473,8 +470,8 @@ public class DBConnection implements DBScripts, DatabaseConstants {
     public static void main(String[] args) {
         try {
             DBConnection conn = new DBConnection("admin", "admin", "project-soralis.pro", 55532);
-            conn.registerUser("wallace", "abcd");
-            conn.registerUser("joana", "1234");
+            //conn.registerUser("wallace", "abcd");
+            //conn.registerUser("joana", "1234");
 
             //LoginInfo info = new LoginInfo("wallace", "abcd", new ClientConnection(1, 2, 3));
             //conn.userLogin(info, "192.168.1.299");
@@ -488,7 +485,7 @@ public class DBConnection implements DBScripts, DatabaseConstants {
             //conn.addHistoryRegister("wallace","joana","myfich");
             //System.out.println(conn.getDownloadHistory("wallace"));
             //System.out.println(conn.getUploadHistory("wallace"));
-            //conn.setStrikes("j", 3);
+            conn.setStrikes("wallace", 1);
             //System.out.println(conn.getStrikes("joana"));
 //            System.out.println(conn.getAuthenticatedUsers());
 //

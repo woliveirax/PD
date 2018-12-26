@@ -13,7 +13,7 @@ public interface DatabaseConstants {
     final static String GET_USER_BY_ID = "SELECT * FROM miniclouddb.Users WHERE idUser = ?;";
     final static String INSERT_USER = "INSERT INTO miniclouddb.Users (username, password) VALUES (?,?);";
     final static String AUTHENTICATE_USER = "INSERT INTO miniclouddb.AuthUsers (userId, keepAlivePort, transferPort,notificationPort, ipAddress) VALUES (?,?,?,?,?);";
-    final static String LOGOUT_USER = "INSERT INTO miniclouddb.Users (username, password) VALUES (?,?,?);";
+    final static String LOGOUT_USER = "DELETE FROM miniclouddb.AuthUsers WHERE userId = ?;";
     
     final static String GET_FILES_FROM_USER = "SELECT name, size FROM miniclouddb.Files, miniclouddb.users WHERE owner = idUser AND username = ?;";
     
