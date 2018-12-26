@@ -12,8 +12,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class NotificationThread extends Thread {
     private final DataObservable observable;
@@ -51,6 +49,20 @@ public class NotificationThread extends Thread {
             server.close();
         } catch (IOException ex) {
             System.out.println("Server Socket can't be closed!");
+        }
+        
+        try {
+            if(in != null)
+                in.close();
+        } catch (IOException ex) {
+            System.out.println("Error closing input stream");
+        }
+        
+        try {
+            if(out != null)
+                out.close();
+        } catch (IOException ex) {
+            System.out.println("Error closing output stream");
         }
     }
     

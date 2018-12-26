@@ -82,10 +82,7 @@ public class WatchDog extends Thread{
             try {
                 key = watcher.take();
             } catch (InterruptedException x) {
-                if(CONTINUE)
                     continue;
-                else
-                    return;
             }
             
             for (WatchEvent<?> event : key.pollEvents()) {

@@ -35,14 +35,11 @@ public class KeepAliveThread extends Thread {
     public int getPort(){
         return socket.getLocalPort();
     }
-
-    public void setCONTINUE(boolean CONTINUE) {
-        this.CONTINUE = CONTINUE;
-    }
     
     public void exit(){
-        setCONTINUE(false);
+        CONTINUE = false;
         socket.close();
+        this.interrupt();
     }
     
     private void handlePackets(DatagramPacket packet)
@@ -99,9 +96,10 @@ public class KeepAliveThread extends Thread {
                 socket.receive(packet);
                 System.out.println("Recebi um pacote");
                 handlePackets(packet);
-
-            }catch(IOException | ClassNotFoundException e){
-                System.out.println("Erro:" + e);
+                
+            } catch(SocketException e){
+            } catch(IOException | ClassNotFoundException e){
+                System.out.println("Erro: " + e);
             } catch (Exception ex) {
                 System.out.println(ex);
             }

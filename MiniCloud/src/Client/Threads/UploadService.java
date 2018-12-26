@@ -155,7 +155,7 @@ public class UploadService extends Thread {
         }catch(FileNotFoundException e){
             System.out.println("Could not create output file! Error: " + e);
         }catch(IOException e){
-            System.out.println("Server error! " +e);
+            System.out.println(e);
             System.out.println("Terminating connection!");
         }
     }

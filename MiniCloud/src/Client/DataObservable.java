@@ -67,14 +67,8 @@ public class DataObservable extends Observable implements UpdateType {
     }
     
     public void logout() throws IOException{
-        try {
             comm.logout();
-            
             shutdownClient();
-            initData();
-        } catch (WatchDogException ex) {
-        } catch (DirectoryException ex) {
-        }
     }
     
     //UserData funcs
@@ -215,5 +209,6 @@ public class DataObservable extends Observable implements UpdateType {
         uploadService.exit();
         notificationService.exit();
         keepAlive.exit();
+        comm.closeLink();
     }
 }

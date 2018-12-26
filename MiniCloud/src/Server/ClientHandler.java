@@ -4,6 +4,7 @@ import BD.ConnectedUser;
 import Exceptions.FileException;
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
+import comm.AuthPackets.Logout;
 import comm.FileData;
 import comm.Packets.InitialFilePackage;
 import comm.LoginInfo;
@@ -154,20 +155,57 @@ public class ClientHandler extends Thread {
                         sendGlobalMsg(msg);
                     }
 
-                } else if (received instanceof LoginInfo) {//TODO: compare to all object types
+                } else if (received instanceof AddFileRequest) {
+                    try{
+                        System.out.println("Adding file \'" + ((AddFileRequest)received).getFile().getName() + "\' to client: " + username);
+                        
+                        FileData file = ((AddFileRequest)received).getFile();
+                        serverObs.getDB().addFile(username, file.getName(),file.getSize());
+                        
+                    }catch(SQLException | UserException | FileException e){
+                        System.out.println(e);
+                        //writeObject(e);
+                    }
+                    
+                } else if (received instanceof RemoveFileRequest) {
+                    try{
+                        System.out.println("Removing File \'" + ((RemoveFileRequest)received).getFilename() + "\' to client: " + username );
+                        serverObs.getDB().removeFile(username, ((RemoveFileRequest)received).getFilename());
+                        
+                    }catch(SQLException | UserException | FileException e){
+                        System.out.println(e);
+                        //writeObject(e);
+                    }
+                } else if (received instanceof UpdateFileRequest) {
+                    try{
+                        System.out.println("Updating file \'" + ((UpdateFileRequest)received).getFile().getName() + "\' to client: " + username);
+                        FileData file = ((UpdateFileRequest)received).getFile();
+                        serverObs.getDB().updateFile(username,file);
+                        
+                    }catch(SQLException | UserException | FileException e){
+                        System.out.println(e);
+                    }
+                    
+                } else if (received instanceof LoginInfo) {
                     try{
                         serverObs.getDB().userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
-                        //startNotificationSocket((LoginInfo) received);
+                        
                     }catch(UserException | SQLException e){
                         writeObject(e);
+                        System.out.println("Login accepted for client: {" + s.getInetAddress());
                     }
+                    
                     writeObject(new LoginAccepted());
-                    System.out.println("Login accepted"); 
+                    System.out.println("Login accepted for client: {" + s.getInetAddress() + "} as "+ ((LoginInfo) received).getUsername()); 
                     username = ((LoginInfo) received).getUsername();
                     serverObs.addLoggedThread(this);
 
+                } else if (received instanceof Logout) {
+                    System.out.println("User: " + username + " Logged out");
+                    serverObs.disconnectUser(username);
+                    //TODO: missing notify for updateClientsFilesInfo throught UDP and TCP
                 } else if (received instanceof InitialFilePackage) {
-                    System.out.println("Initial file");
+                    System.out.println("Initial files package from client: " + username);
                     InitialFilePackage filePackages = (InitialFilePackage)received;
                     for(FileData file : filePackages.getFiles()){
                         try {
@@ -177,36 +215,6 @@ public class ClientHandler extends Thread {
                         }
                     }
                     //TODO: missing notify for updateClientsFilesInfo throught UDP and TCP
-                } else if (received instanceof AddFileRequest) {
-                    try{
-                        System.out.println("Adding file");
-                        FileData file = ((AddFileRequest)received).getFile();
-                        serverObs.getDB().addFile(username, file.getName(),file.getSize());
-                        //serverObs.getDB().setStrikes(this.username,0);
-                    }catch(SQLException | UserException | FileException e){
-                        System.out.println(e);
-                        writeObject(e);
-                    }
-                    
-                } else if (received instanceof RemoveFileRequest) {
-                    try{
-                        System.out.println("Removing");
-                        serverObs.getDB().removeFile(username, ((RemoveFileRequest)received).getFilename());
-                        //serverObs.getDB().setStrikes(this.username,0);
-                    }catch(SQLException | UserException | FileException e){
-                        System.out.println(e);
-                        writeObject(e);
-                    }
-                } else if (received instanceof UpdateFileRequest) {
-                    try{
-                        System.out.println("updating");
-                        FileData file = ((UpdateFileRequest)received).getFile();
-                        serverObs.getDB().updateFile(username,file);
-                        //serverObs.getDB().setStrikes(this.username,0);
-                    }catch(SQLException | UserException | FileException e){
-                        System.out.println(e);
-                        writeObject(e);
-                    }
                 }
                 
             }catch (IOException e) {

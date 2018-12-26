@@ -1,6 +1,5 @@
 package Client;
 
-import comm.Packets.TransferInfo;
 import Exceptions.InvalidDirectoryException;
 import comm.CloudData;
 import comm.FileData;
