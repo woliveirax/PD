@@ -6,39 +6,32 @@ import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
 import comm.FileData;
 import comm.Packets.InitialFilePackage;
-import comm.Packets.KeepAlive;
 import comm.LoginInfo;
 import comm.Packets.AddFileRequest;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.UpdateFileRequest;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.collections.FXCollections;
 
 public class ClientHandler extends Thread {
 
     private final ServerObservable serverObs;
+    
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private final Socket s;
+    
     private Socket notification;
+    
     private String username;
     private boolean CONTINUE;
 
-    private int TIMEOUT = 5000;
+    private final int TIMEOUT = 5000;
 
     public ClientHandler(Socket s, ServerObservable serverObs) {
         this.s = s;
@@ -62,38 +55,8 @@ public class ClientHandler extends Thread {
             try {
                 serverObs.getDB().userLogout(username);
             } catch (UserException | SQLException ex1) {
-                //Do nothing
             }
             this.exit();
-        }
-    }
-
-    private void createDatagramAndSendIt(ConnectedUser receiver,String msg){
-        
-        DatagramSocket dSckt = null;
-        DatagramPacket dPkt = null;
-        
-        try {
-            
-            ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(bStream);
-            
-            out.writeObject(msg);
-            out.flush();
-            out.close();
-            
-            dSckt = new DatagramSocket(0);
-            dPkt = new DatagramPacket(bStream.toByteArray(), bStream.size(), InetAddress.getByName(receiver.getIp()), receiver.getKeepAlivePort());
-            dSckt.send(dPkt);
-            
-            //TODO: recebe o pacote com timeout!
-            
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
     
@@ -117,7 +80,7 @@ public class ClientHandler extends Thread {
                 break;
             }
         }
-
+        
         if (!found) {
             ConnectedUser receiver = null;
             try {
@@ -126,7 +89,7 @@ public class ClientHandler extends Thread {
                 System.out.println(e);
             }
             
-            createDatagramAndSendIt(receiver,msg);
+            //createDatagramAndSendIt(receiver,msg);
         }
     }
 
@@ -153,7 +116,7 @@ public class ClientHandler extends Thread {
             //sends the Msg via UDP to the users from other servers
             for(ConnectedUser receiver : outsideUsers){ //Sends UDP msg
                 System.out.println("Envia UDP para: " + receiver);
-                 createDatagramAndSendIt(receiver,msg);
+                 //createDatagramAndSendIt(receiver,msg);
             }
             
             //sends the Msg via TCP to the logged users to this server
@@ -258,13 +221,11 @@ public class ClientHandler extends Thread {
                         writeObject(e);
                     }
                 }
-                //}
+                
             }catch (IOException e) {
-                System.out.println("IO" + e);
-                break;
+                System.out.println("IO" + e); //TODO: reply with stuff
             }catch (ClassNotFoundException e) {
                 System.out.println("CNF" + e);
-                break;
             }
         }
     }
