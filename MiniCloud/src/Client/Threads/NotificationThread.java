@@ -50,25 +50,12 @@ public class NotificationThread extends Thread {
         } catch (IOException ex) {
             System.out.println("Server Socket can't be closed!");
         }
-        
-        try {
-            if(in != null)
-                in.close();
-        } catch (IOException ex) {
-            System.out.println("Error closing input stream");
-        }
-        
-        try {
-            if(out != null)
-                out.close();
-        } catch (IOException ex) {
-            System.out.println("Error closing output stream");
-        }
     }
     
     @Override
     public void run(){
         try {
+            System.out.println("Port: " + server.getLocalPort());
             socket = server.accept();
             
             out = new ObjectOutputStream(socket.getOutputStream());
@@ -76,7 +63,7 @@ public class NotificationThread extends Thread {
             
             while(CONTINUE){
                 Object obj = in.readObject();
-        
+                
                 if(obj instanceof String){
                             observable.sendChatMessage((String)obj);
 
@@ -112,12 +99,12 @@ public class NotificationThread extends Thread {
         } catch (IOException ex) {
             try {
                 observable.logout();
-                throw new RuntimeException("Error accepting the socket");
+                //throw new RuntimeException("Error accepting the socket");
             } catch (IOException ex1) {
-                throw new RuntimeException("Error accepting the socket, couldn't end threads");
+                //throw new RuntimeException("Error accepting the socket, couldn't end threads");
             }
         } catch(Exception e){
-            System.out.println("Error: " + e);
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }

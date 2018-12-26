@@ -9,7 +9,9 @@ import comm.FileData;
 import comm.Packets.InitialFilePackage;
 import comm.LoginInfo;
 import comm.Packets.AddFileRequest;
+import comm.Packets.DataMass;
 import comm.Packets.RemoveFileRequest;
+import comm.Packets.TransferHistoryPackage;
 import comm.Packets.UpdateFileRequest;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,8 +19,12 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread implements Observer {
 
     private final ServerObservable serverObs;
     
@@ -26,6 +32,7 @@ public class ClientHandler extends Thread {
     private ObjectOutputStream out;
     private final Socket s;
     
+    private ObjectOutputStream notificationOut;
     private Socket notification;
     
     private String username;
@@ -58,11 +65,16 @@ public class ClientHandler extends Thread {
     }
     
     public void startNotificationSocket(LoginInfo info) {
-        try {
-            notification = new Socket(s.getInetAddress(),info.getNotificationPort());
+        try { 
+            System.out.println("IP: " + s.getInetAddress().getHostAddress() + " Port: " + info.getNotificationPort());
+            notification = new Socket(s.getInetAddress().getHostAddress(),info.getNotificationPort());
+            System.out.println("notificationPort: " + info.getNotificationPort());
+            
+            notificationOut = new ObjectOutputStream(notification.getOutputStream());
+            
         } catch (IOException ex) {
             try {
-                serverObs.getDB().userLogout(username);
+                serverObs.userLogout(username);
             } catch (UserException | SQLException ex1) {
             }
             this.exit();
@@ -93,7 +105,7 @@ public class ClientHandler extends Thread {
         if (!found) {
             ConnectedUser receiver;
             try {
-                receiver = serverObs.getDB().getSingleAuthenticatedUser(dest_name);
+                receiver = serverObs.getSingleAuthenticatedUser(dest_name);
                 serverObs.sendUdpPacketToClient(receiver, msg);
             } catch (SQLException | UserException e) {
                 System.out.println(e);
@@ -107,7 +119,7 @@ public class ClientHandler extends Thread {
         msg = username + ": " + msg;
 
         try {
-            outsideUsers =  serverObs.getDB().getAuthenticatedUsers();
+            outsideUsers =  serverObs.getAuthenticatedUsers();
                     
             for (ClientHandler user : serverObs.getLoggedUserThreads()){
                 try {
@@ -145,11 +157,11 @@ public class ClientHandler extends Thread {
             try {
                 // receive the answer from client 
                 received = in.readObject();
-
+                
                 if (received instanceof String) {//means a message is to be sent to other people                    
                     String msg = (String) received;
                     String[] splitted = msg.split("\\s+|\\n+|\\@");//separates when it encounters a space(\\s), a paragraph(\\n) or an arroba(\\@)
-                    if (msg.startsWith("@", 0) && serverObs.getDB().userExists(splitted[1])) {
+                    if (msg.startsWith("@", 0) && serverObs.userExists(splitted[1])) {
                         sendPrivateMsg(msg, splitted[1]);
                     } else {
                         sendGlobalMsg(msg);
@@ -160,7 +172,7 @@ public class ClientHandler extends Thread {
                         System.out.println("Adding file \'" + ((AddFileRequest)received).getFile().getName() + "\' to client: " + username);
                         
                         FileData file = ((AddFileRequest)received).getFile();
-                        serverObs.getDB().addFile(username, file.getName(),file.getSize());
+                        serverObs.addFile(username, file.getName(),file.getSize());
                         
                     }catch(SQLException | UserException | FileException e){
                         System.out.println(e);
@@ -170,7 +182,7 @@ public class ClientHandler extends Thread {
                 } else if (received instanceof RemoveFileRequest) {
                     try{
                         System.out.println("Removing File \'" + ((RemoveFileRequest)received).getFilename() + "\' to client: " + username );
-                        serverObs.getDB().removeFile(username, ((RemoveFileRequest)received).getFilename());
+                        serverObs.removeFile(username, ((RemoveFileRequest)received).getFilename());
                         
                     }catch(SQLException | UserException | FileException e){
                         System.out.println(e);
@@ -180,16 +192,25 @@ public class ClientHandler extends Thread {
                     try{
                         System.out.println("Updating file \'" + ((UpdateFileRequest)received).getFile().getName() + "\' to client: " + username);
                         FileData file = ((UpdateFileRequest)received).getFile();
-                        serverObs.getDB().updateFile(username,file);
+                        serverObs.updateFile(username,file);
                         
                     }catch(SQLException | UserException | FileException e){
                         System.out.println(e);
                     }
                     
+                } else if (received instanceof DataMass) {
+                    try{
+                        writeObject(serverObs.getAllUsersData());
+                        
+                    }catch(IOException | SQLException | UserException e){
+                        writeObject(e);
+                    }
+                    
                 } else if (received instanceof LoginInfo) {
                     try{
-                        serverObs.getDB().userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
-                        
+                        serverObs.userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
+                        startNotificationSocket((LoginInfo)received);
+                        serverObs.addObserver(this);
                     }catch(UserException | SQLException e){
                         writeObject(e);
                         System.out.println("Login accepted for client: {" + s.getInetAddress());
@@ -200,33 +221,43 @@ public class ClientHandler extends Thread {
                     username = ((LoginInfo) received).getUsername();
                     serverObs.addLoggedThread(this);
 
-                } else if (received instanceof Logout) {
-                    System.out.println("User: " + username + " Logged out");
-                    serverObs.disconnectUser(username);
-                    //TODO: missing notify for updateClientsFilesInfo throught UDP and TCP
                 } else if (received instanceof InitialFilePackage) {
                     System.out.println("Initial files package from client: " + username);
                     InitialFilePackage filePackages = (InitialFilePackage)received;
-                    for(FileData file : filePackages.getFiles()){
-                        try {
-                            serverObs.getDB().addFile(this.username, file.getName(),file.getSize());
-                        } catch (UserException | SQLException | FileException ex) {
-                            System.err.println(ex);
-                        }
+                    serverObs.addFilesBunk(username, filePackages);
+                } else if (received instanceof Logout) {
+                    System.out.println("User: " + username + " Logged out");
+                    serverObs.disconnectUser(username);
+                    
+                } else if (received instanceof TransferHistoryPackage) {
+                    System.out.println("client : " + username + "requested history");
+                    try {
+                        writeObject(serverObs.getTransferHistory(username));
+                    } catch (SQLException ex) {
                     }
-                    //TODO: missing notify for updateClientsFilesInfo throught UDP and TCP
                 }
                 
             }catch (IOException e) {
+                serverObs.deleteObserver(this);
                 this.exit();
             }catch (ClassNotFoundException e) {
                 System.out.println("CNF" + e);
             }
         }
     }
-
+    
     private void writeObject(Object obj) throws IOException{
         out.writeObject(obj);
         out.flush();
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        try{
+            notificationOut.writeObject(arg);
+            notificationOut.flush();
+            
+        }catch(IOException e){
+        }
     }
 }

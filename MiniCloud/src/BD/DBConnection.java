@@ -302,7 +302,7 @@ public class DBConnection implements DBScripts, DatabaseConstants {
         return history;
     }
 
-    private ArrayList<TransferInfo> getUploadHistory(String username)
+    public ArrayList<TransferInfo> getUploadHistory(String username)
             throws SQLException {
         ArrayList<TransferInfo> history = new ArrayList<>();
 

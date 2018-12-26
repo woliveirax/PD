@@ -97,13 +97,13 @@ public class WatchDog extends Thread{
                 
                 try{
                     if (ENTRY_CREATE.equals(kind)) {
-                        if(Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
+                        if(!Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
                             data.addFileRequest(getFile(name));
                     } else if (ENTRY_DELETE.equals(kind)) {
-                        if(Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
+                        if(!Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
                             data.removeFileRequest(getFile(name));
                     } else if (ENTRY_MODIFY.equals(kind)) {
-                        if(Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
+                        if(!Files.isDirectory(Paths.get(name), LinkOption.NOFOLLOW_LINKS))
                             data.updateFileRequest(getFile(name));
                     }
                 } catch (IOException ex) {

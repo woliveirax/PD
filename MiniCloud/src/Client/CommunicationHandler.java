@@ -2,7 +2,6 @@ package Client;
 
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
-import comm.AuthPackets.LoginDenied;
 import comm.AuthPackets.Logout;
 import comm.ClientConnection;
 import comm.CloudData;
@@ -11,8 +10,9 @@ import comm.Packets.InitialFilePackage;
 import comm.LoginInfo;
 import comm.Packets.AddFileRequest;
 import comm.Packets.DataMass;
-import comm.Packets.FileTransfersHistoryRequest;
 import comm.Packets.GetUserData;
+import comm.AuthPackets.RegisterUser;
+import comm.AuthPackets.Success;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.TransferHistoryPackage;
 import comm.Packets.TransferInfo;
@@ -51,12 +51,8 @@ public class CommunicationHandler {
             Object answer = receiveMsg();
             if(answer instanceof LoginAccepted){
                 return true;
-            } else if(answer instanceof LoginDenied){
-                return false;
-            } else if(answer instanceof Exception){
-                throw new Exception(((Exception)answer).getCause());
             } else {
-                return false;
+                throw new Exception(((Exception)answer).getCause());
             }
     }
     
@@ -93,7 +89,7 @@ public class CommunicationHandler {
     
     public ArrayList<TransferInfo> getTransferHistory(String username) throws IOException, Exception{
     
-        sendMsg(new FileTransfersHistoryRequest(username));
+        sendMsg(new TransferHistoryPackage(null));
 
         Object obj = receiveMsg();
         if(obj instanceof TransferHistoryPackage){
@@ -123,9 +119,20 @@ public class CommunicationHandler {
         
         Object obj = receiveMsg();
         if(obj instanceof DataMass){
-            
+            observable.setFileList((ArrayList<CloudData>)obj);
         } else {
             throw (Exception) obj;
+        }
+    }
+    
+    public boolean registerNewUser(String username, String password) throws IOException, Exception{
+        sendMsg(new RegisterUser(username, password));
+        
+        Object obj = receiveMsg();
+        if(obj instanceof Success){
+            return true;
+        } else {
+            throw ((Exception)obj);
         }
     }
     

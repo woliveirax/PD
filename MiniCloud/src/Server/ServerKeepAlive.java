@@ -60,14 +60,14 @@ public class ServerKeepAlive extends Thread {
     
     private void addStrikes(String username) {
         try{
-            int strikes = observable.getDB().getStrikes(username) + 1;
+            int strikes = observable.getStrikes(username) + 1;
             
             if(strikes > 2){
                 if(!observable.disconnectUser(username))
-                    observable.getDB().userLogout(username);
+                    observable.userLogout(username);
                 
             } else {
-                observable.getDB().setStrikes(username, strikes);
+                observable.setStrikes(username, strikes);
                 
             }
             
@@ -115,7 +115,7 @@ public class ServerKeepAlive extends Thread {
                     addStrikes(user.getUsername());
                 }
 
-                observable.getDB().setStrikes(user.getUsername(), 0);
+                observable.setStrikes(user.getUsername(), 0);
             }
             
         } catch(IOException | SQLException | UserException e){
@@ -126,7 +126,7 @@ public class ServerKeepAlive extends Thread {
         ArrayList<ConnectedUser> users = new ArrayList<>();
         
         try {
-            users = observable.getDB().getAuthenticatedUsers();
+            users = observable.getAuthenticatedUsers();
             Iterator<ConnectedUser> it = users.iterator();
             
             ConnectedUser user;
@@ -162,7 +162,7 @@ public class ServerKeepAlive extends Thread {
                     socket.send(packet);
                     try{
                         socket.receive(packet);
-                        observable.getDB().setStrikes(user.getUsername(), 0);
+                        observable.setStrikes(user.getUsername(), 0);
                     } catch (SocketTimeoutException e){
                         addStrikes(user.getUsername());
                     }

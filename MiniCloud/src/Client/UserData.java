@@ -10,8 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class UserData implements Serializable {
-    private File downloadPath; //TODO: add file verification
-    private File uploadPath;
+    private File downloadPath = null; //TODO: add file verification
+    private File uploadPath = null;
     
     private List<CloudData> fileList;
     
