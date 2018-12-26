@@ -186,14 +186,23 @@ public class CloudLogin extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
                 obs.login(fieldUsername.getText(),new String(fieldPassword.getPassword()));
-                fUpload = getDirectory("Choose your UPLOAD folder");
-                fDownload = getDirectory("Choose your DOWNLOAD folder");
+                while(fUpload == null || fDownload == null){
+                    if(obs.getUploadPath() == null){
+                        fUpload = getDirectory("Choose your UPLOAD folder");
+                        obs.setUploadPath(fUpload);
+                    }
+                    if(obs.getDownloadPath() == null){
+                        fDownload = getDirectory("Choose your DOWNLOAD folder");
+                        obs.setDownloadPath(fDownload);
+                    }
+                }
+                
                 CloudMainScreen mainScreen = new  CloudMainScreen(obs);
                 this.setVisible(false);
                 mainScreen.setVisible(true);
             }catch (Exception ex) {
                 String str;
-                if(fUpload == null || fDownload == null)
+                if(ex.equals(new InvalidDirectoryException("Directory is not valid")))
                     str = "Select the download and Upload Directories";
                 else
                     str = "Provide a valid authentication";
@@ -243,6 +252,7 @@ public class CloudLogin extends javax.swing.JFrame {
         
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
         {
+            chooser.setCurrentDirectory(chooser.getCurrentDirectory());
             return chooser.getCurrentDirectory();
         }
         else

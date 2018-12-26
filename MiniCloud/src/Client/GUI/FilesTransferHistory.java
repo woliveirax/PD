@@ -1,27 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Client.GUI;
 
 import Client.DataObservable;
 import Client.UpdateType;
-import static Client.UpdateType.NOTIFICATION_UPDATE;
 import comm.Packets.TransferInfo;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Skully
- */
-public class FilesTransferHistory extends javax.swing.JFrame implements Observer, UpdateType{
+
+public class FilesTransferHistory extends javax.swing.JFrame implements UpdateType{
 
     private final CloudMainScreen previous;
     private final DataObservable obs;
@@ -165,21 +152,8 @@ public class FilesTransferHistory extends javax.swing.JFrame implements Observer
             System.exit(1);
         }
     }//GEN-LAST:event_btnLeaveActionPerformed
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnLeave;
-    private javax.swing.JButton btnReturn;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JLabel labelTitle;
-    private javax.swing.JPanel loginPanel;
-    private javax.swing.JPanel titlePanel;
-    private javax.swing.JTextArea txtAreaHistory;
-    // End of variables declaration//GEN-END:variables
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if((int)arg == HISTORY_UPDATE){
-            int usersCount = obs.getUsers().size();
+    public void fillHistory(){
+        int usersCount = obs.getUsers().size();
             String username = "";
             ArrayList<TransferInfo> transfers;
             for(int i =0; i < usersCount ; i++){
@@ -194,7 +168,15 @@ public class FilesTransferHistory extends javax.swing.JFrame implements Observer
                 }
                 
             }
-        }
-        
     }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnLeave;
+    private javax.swing.JButton btnReturn;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel labelTitle;
+    private javax.swing.JPanel loginPanel;
+    private javax.swing.JPanel titlePanel;
+    private javax.swing.JTextArea txtAreaHistory;
+    // End of variables declaration//GEN-END:variables
+
 }

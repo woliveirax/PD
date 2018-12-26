@@ -281,7 +281,9 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     private void downloadSelection(){
         tableFiles.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
             try {
-                observable.addFileRequest(new File(tableFiles.getValueAt(tableFiles.getSelectedRow(),1).toString()));
+                File f = new File(tableFiles.getValueAt(tableFiles.getSelectedRow(),1).toString());
+                if(f != null)
+                    observable.addFileRequest(f);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, 
                               "The item selected cannot be downloaded", 
