@@ -23,8 +23,6 @@ public class DataObservable extends Observable implements UpdateType {
     private NotificationThread notificationService;
     
     private UserData userdata;
-    private String chat;
-    private String notification;
     
     
     public DataObservable() 
@@ -88,6 +86,13 @@ public class DataObservable extends Observable implements UpdateType {
     
     public void addFileFromUser(String user, FileData file){
         userdata.addFileToUser(user, file);
+        
+        for(CloudData x : userdata.getFileList()){
+            System.out.println("User: " + x.getUser());
+            for(FileData f : x.getFiles()){
+                System.out.println("\t- " + f.toString());
+            }
+        }
         
         setChanged();
         notifyObservers(FILE_UPDATE);
@@ -155,22 +160,16 @@ public class DataObservable extends Observable implements UpdateType {
         comm.sendChatMessage(msg);
     }
     
-    public synchronized void receiveChatMessage(String msg){
-        chat = msg;
+    public void receiveChatMessage(String msg){
         
         setChanged();
-        notifyObservers(CHAT_UPDATE);
+        notifyObservers(msg);
     }
     
-    public synchronized void receiveNotification(String notification){
-        this.notification = notification;
+    public void receiveNotification(String notification){
         
         setChanged();
-        notifyObservers(NOTIFICATION_UPDATE);
-    }
-    
-    public  ArrayList<TransferInfo> getTransferHistory(String username) throws Exception{
-        return comm.getTransferHistory(username);
+        notifyObservers(new TransferNotification(notification));
     }
     
     public void setFileList(ArrayList<CloudData> list){
@@ -184,6 +183,10 @@ public class DataObservable extends Observable implements UpdateType {
         comm.addFileTransfer(info);
     }
     
+    public  ArrayList<TransferInfo> getTransferHistory(String username) throws Exception{
+        return comm.getTransferHistory(username);
+    }
+    
     public void updateUserFiles(String username) throws Exception{
         userdata.updateUserFiles(username, comm.getUserData(username).getFiles());
         
@@ -191,14 +194,17 @@ public class DataObservable extends Observable implements UpdateType {
         notifyObservers(FILE_UPDATE);
     }
     
+    public boolean registerUser(String username, String password) throws Exception{
+        return comm.registerNewUser(username, password);
+    }
+    
     private void initData() throws WatchDogException, DirectoryException, IOException {
         userdata = new UserData();
-        chat = null;
-        notification = null;
-
+        
         watchdog = new WatchDog(this);
         uploadService = new UploadService(this);
         notificationService = new NotificationThread(this);
+        notificationService.start();
 
         keepAlive = new KeepAliveThread(this);
         keepAlive.start();
