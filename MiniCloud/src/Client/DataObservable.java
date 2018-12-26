@@ -23,7 +23,10 @@ public class DataObservable extends Observable implements UpdateType {
     private NotificationThread notificationService;
     
     private UserData userdata;
-    
+    private String chat;
+    private String notification;
+    private String ServerIPAddr;
+    private int ServerPort;
     
     public DataObservable() 
             throws WatchDogException, IOException, DirectoryException
@@ -38,6 +41,8 @@ public class DataObservable extends Observable implements UpdateType {
     
     //Connection and processes handlers
     public void startServerConnection(String ipAddress, int port) throws IOException{
+        ServerIPAddr = ipAddress;
+        ServerPort = port;
         comm = new CommunicationHandler(port, ipAddress, this);
     }
     
@@ -158,6 +163,14 @@ public class DataObservable extends Observable implements UpdateType {
     
     public void sendChatMessage(String msg) throws IOException{
         comm.sendChatMessage(msg);
+    }
+
+    public String getServerIPAddr() {
+        return ServerIPAddr;
+    }
+
+    public int getServerPort() {
+        return ServerPort;
     }
     
     public void receiveChatMessage(String msg){
