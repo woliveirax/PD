@@ -2,7 +2,6 @@ package Client.GUI;
 
 import Client.DataObservable;
 import Exceptions.InvalidDirectoryException;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -182,17 +181,24 @@ public class CloudLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        File fUpload = null;
+        File fDownload = null;
         try {
             // TODO add your handling code here:
                 obs.login(fieldUsername.getText(),new String(fieldPassword.getPassword()));
-                getDirectory("Choose your upload folder");
-                getDirectory("Choose your download folder");
+                fUpload = getDirectory("Choose your UPLOAD folder");
+                fDownload = getDirectory("Choose your DOWNLOAD folder");
                 CloudMainScreen mainScreen = new  CloudMainScreen(obs);
                 this.setVisible(false);
                 mainScreen.setVisible(true);
             }catch (Exception ex) {
+                String str;
+                if(fUpload == null || fDownload == null)
+                    str = "Select the download and Upload Directories";
+                else
+                    str = "Provide a valid authentication";
             JOptionPane.showMessageDialog(this, 
-                              "Provide a valid authentication", 
+                              str, 
                               "Not valid", 
                               JOptionPane.WARNING_MESSAGE);
         }

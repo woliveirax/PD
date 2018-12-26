@@ -1,21 +1,31 @@
 package Client.GUI;
 
 import Client.DataObservable;
+import Client.UpdateType;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
+import comm.CloudData;
+import comm.FileData;
+import comm.Packets.TransferInfo;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
 
-public class CloudMainScreen extends javax.swing.JFrame implements Observer {
+public class CloudMainScreen extends javax.swing.JFrame implements Observer, UpdateType{
     JFileChooser chooser;
     DataObservable observable;
     
     public CloudMainScreen(DataObservable o) {
         initComponents();
         observable = o;
+        downloadSelection();
     }
     
     @SuppressWarnings("unchecked")
@@ -25,8 +35,6 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
         jDialog1 = new javax.swing.JDialog();
         jTextField1 = new javax.swing.JTextField();
         mainPanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        FilesAvailable = new javax.swing.JTree();
         jScrollPane3 = new javax.swing.JScrollPane();
         fieldMessage = new javax.swing.JTextArea();
         btnLogout = new javax.swing.JButton();
@@ -36,8 +44,10 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
         btnTransfers = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        fieldChatMessages = new javax.swing.JTextField();
+        txtAreaChat = new javax.swing.JTextArea();
         fieldNotification = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableFiles = new javax.swing.JTable();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -61,45 +71,6 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
         mainPanel.setFocusable(false);
         mainPanel.setFont(new java.awt.Font("Verdana", 0, 11)); // NOI18N
         mainPanel.setPreferredSize(new java.awt.Dimension(800, 500));
-
-        FilesAvailable.setFont(new java.awt.Font("Verdana", 0, 11)); // NOI18N
-        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("FILES");
-        javax.swing.tree.DefaultMutableTreeNode treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("colors");
-        javax.swing.tree.DefaultMutableTreeNode treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("blue");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("violet");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("red");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("yellow");
-        treeNode2.add(treeNode3);
-        treeNode1.add(treeNode2);
-        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("sports");
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("basketball");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("soccer");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("football");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("hockey");
-        treeNode2.add(treeNode3);
-        treeNode1.add(treeNode2);
-        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("food");
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("hot dogs");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("pizza");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("ravioli");
-        treeNode2.add(treeNode3);
-        treeNode3 = new javax.swing.tree.DefaultMutableTreeNode("bananas");
-        treeNode2.add(treeNode3);
-        treeNode1.add(treeNode2);
-        FilesAvailable.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-        FilesAvailable.setName(""); // NOI18N
-        FilesAvailable.setOpaque(false);
-        FilesAvailable.setRequestFocusEnabled(false);
-        jScrollPane1.setViewportView(FilesAvailable);
-        FilesAvailable.getAccessibleContext().setAccessibleName("");
 
         fieldMessage.setColumns(20);
         fieldMessage.setRows(5);
@@ -159,15 +130,43 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel2.setText("Chat Room");
 
-        fieldChatMessages.setEditable(false);
-        fieldChatMessages.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                fieldChatMessagesPropertyChange(evt);
-            }
-        });
-        jScrollPane4.setViewportView(fieldChatMessages);
+        txtAreaChat.setEditable(false);
+        txtAreaChat.setColumns(20);
+        txtAreaChat.setRows(5);
+        txtAreaChat.setFocusable(false);
+        jScrollPane4.setViewportView(txtAreaChat);
 
         fieldNotification.setEditable(false);
+
+        tableFiles.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "User", "FileName", "Size"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(tableFiles);
+        if (tableFiles.getColumnModel().getColumnCount() > 0) {
+            tableFiles.getColumnModel().getColumn(0).setMinWidth(80);
+            tableFiles.getColumnModel().getColumn(0).setPreferredWidth(80);
+            tableFiles.getColumnModel().getColumn(0).setMaxWidth(80);
+            tableFiles.getColumnModel().getColumn(1).setPreferredWidth(14);
+            tableFiles.getColumnModel().getColumn(2).setMinWidth(40);
+            tableFiles.getColumnModel().getColumn(2).setPreferredWidth(40);
+            tableFiles.getColumnModel().getColumn(2).setMaxWidth(40);
+        }
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -178,20 +177,21 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                             .addComponent(fieldNotification))
-                        .addGap(16, 16, 16)
+                        .addGap(18, 18, 18)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jScrollPane4)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(jScrollPane3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(mainPanelLayout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(btnSend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnTransfers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                    .addComponent(btnTransfers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jScrollPane4)))
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(titlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -205,24 +205,24 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(titlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 389, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(fieldNotification, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(14, 14, 14)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(mainPanelLayout.createSequentialGroup()
                                 .addComponent(btnTransfers, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fieldNotification)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -235,7 +235,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE)
         );
 
         mainPanel.getAccessibleContext().setAccessibleName("");
@@ -273,41 +273,71 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_btnSendActionPerformed
 
     private void btnTransfersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransfersActionPerformed
-        // TODO add your handling code here:
         FilesTransferHistory transfers = new FilesTransferHistory(observable, this);
         this.setVisible(false);
         transfers.setVisible(true);
     }//GEN-LAST:event_btnTransfersActionPerformed
 
-    private void fieldChatMessagesPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_fieldChatMessagesPropertyChange
-        // TODO add your handling code here:
-    }//GEN-LAST:event_fieldChatMessagesPropertyChange
-
+    private void downloadSelection(){
+        tableFiles.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
+            try {
+                observable.addFileRequest(new File(tableFiles.getValueAt(tableFiles.getSelectedRow(),1).toString()));
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, 
+                              "The item selected cannot be downloaded", 
+                              "Error in File Selection", 
+                              JOptionPane.WARNING_MESSAGE);
+            }
+            
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTree FilesAvailable;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnSend;
     private javax.swing.JButton btnTransfers;
-    private javax.swing.JTextField fieldChatMessages;
     private javax.swing.JTextArea fieldMessage;
     private javax.swing.JTextField fieldNotification;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel labelTitle;
     private javax.swing.JPanel mainPanel;
+    private javax.swing.JTable tableFiles;
     private javax.swing.JPanel titlePanel;
+    private javax.swing.JTextArea txtAreaChat;
     // End of variables declaration//GEN-END:variables
 
     
     //TODO: this needs to do something
     @Override
     public void update(Observable o, Object arg) {
-        //TODO: create if statements so we don't update everything when a change is made
-        //So if(updateFileList) updates ONLY the list of files for example
+        switch((int)arg){
+            case FILE_UPDATE:
+                ArrayList<CloudData> users = observable.getUsers();
+                int i = 0, j = 0;
+                
+                for(CloudData user : users){
+                    ArrayList<FileData> files = user.getFiles();
+                    for(FileData file : files){
+                        tableFiles.setValueAt(file.getName(),i+j,0);
+                        tableFiles.setValueAt(file.getName(),i+j,1);
+                        tableFiles.setValueAt(file.getSize(),i+j,2);
+                        j++;
+                    }
+                    i++;
+                }
+                break;
+            case CHAT_UPDATE:
+                //txtAreaChat.append(observable.get);
+                break;
+            case NOTIFICATION_UPDATE:
+                
+                break;
+        }
+
     }
 }
