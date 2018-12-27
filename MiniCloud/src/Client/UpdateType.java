@@ -1,5 +1,5 @@
 package Client;
 
 public interface UpdateType {
-    static final int FILE_UPDATE = 0;
+    static final Integer FILE_UPDATE = 0;
 }
