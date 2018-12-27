@@ -4,8 +4,6 @@ import Client.DataObservable;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class InitCloud extends javax.swing.JFrame {

@@ -1,11 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Client.GUI;
 
 import Client.DataObservable;
+import Exceptions.InvalidDirectoryException;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 public class CloudRegister extends javax.swing.JFrame {
 
@@ -180,12 +179,75 @@ public class CloudRegister extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLeaveActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // TODO add your handling code here:
-//        CloudLogin login = new CloudLogin();//send data as param
-//        this.setVisible(false);
-//        login.setVisible(true);
+        File fUpload = null;
+        File fDownload = null;
+       
+        String user = fieldUsername.getText();
+        String pass = fieldPassword.getSelectedText();
+        
+//        if(sizeIsValid(user, 4, 10) && sizeIsValid(pass, 4, 10) && spellingIsValid(user)){
+            try {
+                //obs.registerUser(user, pass);//TODO: uncomment
+                obs.login(user,pass);
+                while(fUpload == null || fDownload == null){
+                    try{
+                        if(obs.getUploadPath() == null){
+                        fUpload = getDirectory("UPLOAD folder");
+                        obs.setUploadPath(fUpload);
+                        }
+                        if(obs.getDownloadPath() == null){
+                            fDownload = getDirectory("DOWNLOAD folder");
+                            obs.setDownloadPath(fDownload);
+                        }
+                    }catch(InvalidDirectoryException ex){
+                        System.out.println(ex);
+                    } 
+                }
+                
+                CloudMainScreen mainScreen = new  CloudMainScreen(obs);
+                this.setVisible(false);
+                mainScreen.setVisible(true);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Register was not possible. Try again or leave it as it is :P.", 
+                    "Error in Aunthentication", JOptionPane.WARNING_MESSAGE);
+            }
+//        }else{
+//            JOptionPane.showMessageDialog(this, "Username and password must have between 3 to 10 characters. Username cannot contain special characters, nor a number in the first letter", 
+//                    "Invalid Aunthentication Data", JOptionPane.WARNING_MESSAGE);
+//        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
+        private File getDirectory(String msg)
+            throws InvalidDirectoryException
+        {
+            JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + "/Desktop");
+
+            chooser.setDialogTitle(msg);
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+        
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+            {
+                File f = chooser.getSelectedFile();
+                System.out.println(f.toString());
+                return f;
+            }
+            else
+            {
+                throw new InvalidDirectoryException("Directory is not valid");
+            }
+        }
+        
+    private static boolean spellingIsValid(String s) {
+        if(Character.isLetter(s.codePointAt(0))){
+            return s.matches("[a-zA-Z0-9]+");
+        }
+        return false;
+    }
+    
+    private static boolean sizeIsValid(String name, int minSize, int maxSize) {
+        return name.length() >= minSize && name.length() <= maxSize;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;

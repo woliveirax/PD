@@ -185,27 +185,25 @@ public class CloudLogin extends javax.swing.JFrame {
         File fDownload = null;
         try {
             // TODO add your handling code here:
-                obs.login(fieldUsername.getText(),new String(fieldPassword.getPassword()));
+                obs.login(fieldUsername.getText(),fieldPassword.getSelectedText());
                 while(fUpload == null || fDownload == null){
-                    if(obs.getUploadPath() == null){
-                        fUpload = getDirectory("Choose your UPLOAD folder");
+                    try{
+                        if(obs.getUploadPath() == null){
+                        fUpload = getDirectory("UPLOAD folder");
                         obs.setUploadPath(fUpload);
-                    }
-                    if(obs.getDownloadPath() == null){
-                        fDownload = getDirectory("Choose your DOWNLOAD folder");
-                        obs.setDownloadPath(fDownload);
-                    }
+                        }
+                        if(obs.getDownloadPath() == null){
+                            fDownload = getDirectory("DOWNLOAD folder");
+                            obs.setDownloadPath(fDownload);
+                        }
+                    }catch(InvalidDirectoryException ex){ } 
                 }
                 
                 CloudMainScreen mainScreen = new  CloudMainScreen(obs);
                 this.setVisible(false);
                 mainScreen.setVisible(true);
             }catch (Exception ex) {
-                String str;
-                if(ex.equals(new InvalidDirectoryException("Directory is not valid")))
-                    str = "Select the download and Upload Directories";
-                else
-                    str = "Provide a valid authentication";
+                String str = "Provide a valid authentication";
             JOptionPane.showMessageDialog(this, 
                               str, 
                               "Not valid", 
@@ -241,10 +239,7 @@ public class CloudLogin extends javax.swing.JFrame {
     private File getDirectory(String msg)
             throws InvalidDirectoryException
     {
-        chooser = new JFileChooser();
-        
-        chooser.setCurrentDirectory(
-                new File(System.getProperty("user.home") + "/Desktop"));
+        chooser = new JFileChooser(System.getProperty("user.home") + "/Desktop");
         
         chooser.setDialogTitle(msg);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -252,8 +247,9 @@ public class CloudLogin extends javax.swing.JFrame {
         
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
         {
-            chooser.setCurrentDirectory(chooser.getCurrentDirectory());
-            return chooser.getCurrentDirectory();
+            File f = chooser.getSelectedFile();
+            System.out.println(f.toString());
+            return f;
         }
         else
         {

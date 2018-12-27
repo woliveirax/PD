@@ -1,22 +1,21 @@
 package Client.GUI;
 
 import Client.DataObservable;
+import Client.TransferNotification;
 import Client.UpdateType;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
 import comm.CloudData;
 import comm.FileData;
-import comm.Packets.TransferInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class CloudMainScreen extends javax.swing.JFrame implements Observer, UpdateType{
     JFileChooser chooser;
@@ -133,17 +132,13 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
         txtAreaChat.setEditable(false);
         txtAreaChat.setColumns(20);
         txtAreaChat.setRows(5);
-        txtAreaChat.setFocusable(false);
         jScrollPane4.setViewportView(txtAreaChat);
 
         fieldNotification.setEditable(false);
 
         tableFiles.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "User", "FileName", "Size"
@@ -279,18 +274,22 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     }//GEN-LAST:event_btnTransfersActionPerformed
 
     private void downloadSelection(){
-        tableFiles.getSelectionModel().addListSelectionListener((ListSelectionEvent event) -> {
-            try {
-                File f = new File(tableFiles.getValueAt(tableFiles.getSelectedRow(),1).toString());
-                if(f != null)
-                    observable.addFileRequest(f);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, 
-                              "The item selected cannot be downloaded", 
-                              "Error in File Selection", 
-                              JOptionPane.WARNING_MESSAGE);
+        tableFiles.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            @Override
+            public void valueChanged(ListSelectionEvent event) {
+                try {
+                    String value;
+                    Object o = tableFiles.getValueAt(tableFiles.getSelectedRow(),1);
+                    System.out.println(o.toString());
+                    if( o != null){
+                        value = o.toString();
+                        File f = new File(value);
+                        observable.addFileRequest(f);
+                    }
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(CloudMainScreen.this, "The item selected cannot be downloaded", "Error in File Selection", JOptionPane.WARNING_MESSAGE);
+                }
             }
-            
         });
     }
 
@@ -317,8 +316,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     //TODO: this needs to do something
     @Override
     public void update(Observable o, Object arg) {
-        switch((int)arg){
-            case FILE_UPDATE:
+        if(arg instanceof Integer){//Means it is a FileUpdate
                 ArrayList<CloudData> users = observable.getUsers();
                 int i = 0, j = 0;
                 
@@ -332,14 +330,12 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
                     }
                     i++;
                 }
-                break;
-            case CHAT_UPDATE:
-                //txtAreaChat.append(observable.get);
-                break;
-            case NOTIFICATION_UPDATE:
-                
-                break;
-        }
-
+        }else if(arg instanceof String)//Means it's a chat msg
+            txtAreaChat.append((String)arg);
+        else if(arg instanceof TransferNotification)//Means it's a transfernotification
+            fieldNotification.setText(((TransferNotification)arg).getDetails());
+        else //Means it's a dta mass package
+            System.out.println("Data Mass xD"); //TODO: replace
+           
     }
 }
