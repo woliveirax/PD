@@ -4,17 +4,16 @@ import BD.ConnectedUser;
 import BD.DBConnection;
 import Exceptions.FileException;
 import Exceptions.UserException;
-import comm.AuthPackets.Logout;
 import comm.CloudData;
 import comm.FileData;
 import comm.LoginInfo;
 import comm.Packets.AddFileRequest;
 import comm.Packets.AddUser;
-import comm.Packets.GetUserData;
 import comm.Packets.InitialFilePackage;
 import comm.Packets.InitialFilePackageNotification;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.RemoveUser;
+import comm.Packets.TransferHistoryPackage;
 import comm.Packets.TransferInfo;
 import comm.Packets.UpdateFileRequest;
 import java.net.SocketException;
@@ -170,11 +169,15 @@ public class ServerObservable extends Observable{
         return DB.getUploadHistory(username);
     }
     
-    public ArrayList<TransferInfo> getTransferHistory(String username) throws SQLException{
+    public TransferHistoryPackage getTransferHistory(String username) throws SQLException{
         ArrayList<TransferInfo> info = getDownloadHistory(username);
         info.addAll(getUploadHistory(username));
         
-        return info;
+        return new TransferHistoryPackage(info);
+    }
+    
+    public void registerTransferHistory(TransferInfo info) throws SQLException, UserException{
+        DB.addHistoryRegister(info.getSourceName(), info.getDestinataryName(), info.getFileName());
     }
     
     public void sendUdpPacketToClient(ConnectedUser user, Object obj){

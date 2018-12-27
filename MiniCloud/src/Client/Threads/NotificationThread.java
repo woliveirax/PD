@@ -9,7 +9,6 @@ import comm.Packets.RemoveUser;
 import comm.Packets.UpdateFileRequest;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -20,7 +19,6 @@ public class NotificationThread extends Thread {
     private  Socket socket;
     
     private ObjectInputStream in;
-    private ObjectOutputStream out;
     
     private boolean CONTINUE;
     
@@ -58,7 +56,6 @@ public class NotificationThread extends Thread {
             System.out.println("Port: " + server.getLocalPort());
             socket = server.accept();
             
-            out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
             
             while(CONTINUE){
@@ -74,8 +71,6 @@ public class NotificationThread extends Thread {
                     observable.addFileFromUser(((AddFileRequest)obj).getUsername(),
                                                 ((AddFileRequest)obj).getFile());
                     
-                    int i = 0;
-
 
                 } else if (obj instanceof RemoveFileRequest) {
                     System.out.println("remove file");
@@ -107,11 +102,12 @@ public class NotificationThread extends Thread {
             }
             
         } catch (IOException ex) {
+            System.out.println("Erro notification: " + ex);
             try {
                 observable.logout();
-                throw new RuntimeException("Error accepting the socket");
+                //throw new RuntimeException("Error accepting the socket");
             } catch (IOException ex1) {
-                throw new RuntimeException("Error accepting the socket, couldn't end threads");
+                throw new RuntimeException("Error accepting the socket, couldn't end threads" +ex1);
             }
         } catch(Exception e){
             System.out.println("Error: " + e.getMessage());

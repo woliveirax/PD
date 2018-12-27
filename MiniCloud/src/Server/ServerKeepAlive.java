@@ -20,12 +20,14 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  *
  * @author Skully
  */
-public class ServerKeepAlive extends Thread {
+public class ServerKeepAlive extends Thread implements Observer {
     private final int TIMEOUT = 1500;
     private final int SLEEP_TIME = 5000;
     
@@ -38,6 +40,7 @@ public class ServerKeepAlive extends Thread {
         socket = new DatagramSocket(0);
         socket.setSoTimeout(TIMEOUT);
         observable = obs;
+        observable.addObserver(this);
         CONTINUE = true;
     }
     
@@ -82,7 +85,9 @@ public class ServerKeepAlive extends Thread {
         try {
             ByteArrayOutputStream bStream = serializeObject(msg);
             packet = new DatagramPacket(bStream.toByteArray(), bStream.size(), InetAddress.getByName(receiver.getIp()), receiver.getKeepAlivePort());
-            socket.send(packet);
+            synchronized(socket){
+                socket.send(packet);
+            }
             
             socket.receive(packet);
             
@@ -107,7 +112,9 @@ public class ServerKeepAlive extends Thread {
             
             for(ConnectedUser user : users){
                 packet = new DatagramPacket(content.toByteArray(),content.size(),InetAddress.getByName(user.getIp()), user.getKeepAlivePort());
-                socket.send(packet);
+                synchronized (socket) {
+                    socket.send(packet);
+                }
 
                 try{
                     socket.receive(packet);
@@ -159,18 +166,24 @@ public class ServerKeepAlive extends Thread {
                 
                 for(ConnectedUser user : users){
                     packet = new DatagramPacket(content.toByteArray(),content.size(),InetAddress.getByName(user.getIp()), user.getKeepAlivePort());
-                    socket.send(packet);
+                    synchronized(socket){
+                        socket.send(packet);
+                    }
                     try{
                         socket.receive(packet);
                         observable.setStrikes(user.getUsername(), 0);
                     } catch (SocketTimeoutException e){
                         addStrikes(user.getUsername());
-                    }
-                }
+                    }                }
                 Thread.sleep(SLEEP_TIME);
             }
         } catch(InterruptedException | IOException | SQLException | UserException e){
         }//Nothing we can do here
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        broadcastToUdpClients(arg);
     }
         
 }

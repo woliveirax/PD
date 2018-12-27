@@ -16,6 +16,13 @@ public class TransferInfo implements Serializable{
         this.fileName = fileName;
     }
 
+    public TransferInfo(String sourceName, String destinataryName, String fileName) {
+        this.date = new Timestamp(0);
+        this.sourceName = sourceName;
+        this.destinataryName = destinataryName;
+        this.fileName = fileName;
+    }
+    
     public Timestamp getDate() {
         return date;
     }

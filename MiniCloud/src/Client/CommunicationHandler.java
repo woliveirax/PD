@@ -1,6 +1,5 @@
 package Client;
 
-import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
 import comm.AuthPackets.Logout;
 import comm.ClientConnection;
@@ -89,7 +88,7 @@ public class CommunicationHandler {
     
     public ArrayList<TransferInfo> getTransferHistory(String username) throws IOException, Exception{
     
-        sendMsg(new TransferHistoryPackage(null));
+        sendMsg(new TransferHistoryPackage(new ArrayList<>()));
 
         Object obj = receiveMsg();
         if(obj instanceof TransferHistoryPackage){
@@ -101,7 +100,7 @@ public class CommunicationHandler {
     
     public CloudData getUserData(String username) throws IOException, Exception{
         sendMsg(new GetUserData(username));
-        
+        System.out.println("wating for user data");
         Object obj = receiveMsg();
         if(obj instanceof CloudData){
             return (CloudData)obj;
@@ -132,7 +131,7 @@ public class CommunicationHandler {
         }
     }
     
-    private void sendMsg(Object msg) throws IOException{
+    private synchronized void sendMsg(Object msg) throws IOException{
         try{
             out.writeObject(msg);
             out.flush();
@@ -141,7 +140,7 @@ public class CommunicationHandler {
         }        
     }
     
-    private Object receiveMsg() 
+    private synchronized Object receiveMsg() 
             throws IOException
     {
         try{

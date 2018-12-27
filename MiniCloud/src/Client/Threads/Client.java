@@ -1,14 +1,8 @@
 package Client.Threads;
 
 import Client.DataObservable;
-import Client.GUI.CloudLogin;
-import Client.WatchDog.WatchDogException;
-import Exceptions.DirectoryException;
+import comm.Packets.TransferInfo;
 import java.io.File;
-import java.io.IOException;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Client {
     
@@ -18,15 +12,28 @@ public class Client {
             //CloudLogin interfaceStartUp = new CloudLogin();
             //interfaceStartUp.setVisible(true);
             DataObservable x = new DataObservable();
-            x.startServerConnection("project-soralis.pro", 6001);
+            x.startServerConnection("192.168.1.68", 6001);
             
             try{
                 x.login("wallace", "abcd");
+                
+                x.setUploadPath(new File("C:\\Users\\Skully\\Downloads\\Upload"));
+            
+                x.addFileTransfer(new TransferInfo("wallace","joana", "xpto.asp"));
+                System.out.println(x.getTransferHistory("wallace"));
+                x.addFileTransfer(new TransferInfo("wallace","joana", "Gosto muito de it :)"));
+                System.out.println("-----------");
+                System.out.println(x.getTransferHistory("joana"));
+                
             }catch(Exception e){
                 System.out.println(e);
+                x.logout();
             }
-            x.setUploadPath(new File("C:\\Users\\Skully\\Downloads\\Upload"));
             
+            
+            //Thread.sleep(5000);
+            
+            //x.logout();
 //            Scanner scan = new Scanner(System.in);
 //            while(true){ 
 //                System.out.print("> "); 

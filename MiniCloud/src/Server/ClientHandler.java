@@ -7,6 +7,7 @@ import comm.AuthPackets.LoginAccepted;
 import comm.AuthPackets.Logout;
 import comm.AuthPackets.RegisterUser;
 import comm.AuthPackets.Success;
+import comm.CloudData;
 import comm.FileData;
 import comm.Packets.InitialFilePackage;
 import comm.LoginInfo;
@@ -15,6 +16,7 @@ import comm.Packets.DataMass;
 import comm.Packets.GetUserData;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.TransferHistoryPackage;
+import comm.Packets.TransferInfo;
 import comm.Packets.UpdateFileRequest;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -208,10 +210,12 @@ public class ClientHandler extends Thread implements Observer {
                     }
                     
                 } else if (received instanceof GetUserData) {
-                    System.out.println("Client: " + username + "Requested Used data from: " + ((GetUserData)received).getUsername());
+                    System.out.println("Cient " + username + " requested user data from: " + ((GetUserData)received).getUsername());
                     try{
-                        writeObject(serverObs.getUserData( ((GetUserData)received).getUsername()) );
+                        CloudData send = serverObs.getUserData(((GetUserData)received).getUsername());
+                        writeObject(send);
                     }catch(IOException | SQLException | UserException e){
+                        System.out.println("Exception getting user data");
                         writeObject(e);
                     }
                     
@@ -229,21 +233,22 @@ public class ClientHandler extends Thread implements Observer {
                     System.out.println("Initial files package from client: " + username);
                     InitialFilePackage filePackages = (InitialFilePackage)received;
                     serverObs.addFilesBunk(username, filePackages);
+                    
                 } else if (received instanceof LoginInfo) {
                     try{
                         serverObs.userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
                         serverObs.addObserver(this);
                         startNotificationSocket((LoginInfo)received);
+                    
+                        writeObject(new LoginAccepted());
+                        System.out.println("Login accepted for client: {" + s.getInetAddress() + "} as "+ ((LoginInfo) received).getUsername()); 
+                        username = ((LoginInfo) received).getUsername();
+                        serverObs.addLoggedThread(this);
+                    
                     }catch(UserException | SQLException e){
                         writeObject(e);
-                        System.out.println("Login accepted for client: {" + s.getInetAddress());
+                        System.out.println("Login denied for client: {" + s.getInetAddress()+ "}");
                     }
-                    
-                    writeObject(new LoginAccepted());
-                    System.out.println("Login accepted for client: {" + s.getInetAddress() + "} as "+ ((LoginInfo) received).getUsername()); 
-                    username = ((LoginInfo) received).getUsername();
-                    serverObs.addLoggedThread(this);
-
                 } else if (received instanceof DataMass) {
                     try{
                         writeObject(serverObs.getAllUsersData());
@@ -257,10 +262,18 @@ public class ClientHandler extends Thread implements Observer {
                     serverObs.disconnectUser(username);
                     
                 } else if (received instanceof TransferHistoryPackage) {
-                    System.out.println("client : " + username + "requested history");
+                    System.out.println("client : " + username + " requested history");
                     try {
                         writeObject(serverObs.getTransferHistory(username));
                     } catch (SQLException ex) {
+                        System.out.println("error serveobssss: " + ex);
+                    }
+                } else if (received instanceof TransferInfo) {
+                    System.out.println("client : " + username + " requested new additon to file history");
+                    try {
+                        serverObs.registerTransferHistory((TransferInfo)received);
+                    } catch (SQLException | UserException e) {
+                        System.out.println("Error adding history: " + e);
                     }
                 } else {
                     System.out.println("I DON'T FEAR ANYTHING BUT THIS THING, THIS THING SCARES ME!");
@@ -275,24 +288,18 @@ public class ClientHandler extends Thread implements Observer {
         }
     }
     
-    private void writeObject(Object obj) throws IOException{
+    private synchronized void writeObject(Object obj) throws IOException{
         out.writeObject(obj);
         out.flush();
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println("##############update");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    notificationOut.writeObject(arg);
-                    notificationOut.flush();
+        try{
+            notificationOut.writeObject(arg);
+            notificationOut.flush();
 
-                }catch(IOException e){
-                }
-            }
-        }).start();
+        }catch(IOException e){
+        }
     }
 }
