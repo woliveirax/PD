@@ -48,8 +48,6 @@ public class KeepAliveThread extends Thread {
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(packet.getData()));
         Object obj = in.readObject();
         
-        System.out.println("Recebi qq coisa");
-        
         if(obj instanceof String){
                     observable.sendChatMessage((String)obj);
                     
@@ -92,9 +90,7 @@ public class KeepAliveThread extends Thread {
         
         while(CONTINUE){
             try{
-                System.out.println("ready to receive keep alive packets");
                 socket.receive(packet);
-                System.out.println("Recebi um pacote");
                 handlePackets(packet);
                 
             } catch(SocketException e){

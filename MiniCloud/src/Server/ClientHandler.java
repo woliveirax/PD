@@ -5,11 +5,14 @@ import Exceptions.FileException;
 import Exceptions.UserException;
 import comm.AuthPackets.LoginAccepted;
 import comm.AuthPackets.Logout;
+import comm.AuthPackets.RegisterUser;
+import comm.AuthPackets.Success;
 import comm.FileData;
 import comm.Packets.InitialFilePackage;
 import comm.LoginInfo;
 import comm.Packets.AddFileRequest;
 import comm.Packets.DataMass;
+import comm.Packets.GetUserData;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.TransferHistoryPackage;
 import comm.Packets.UpdateFileRequest;
@@ -21,8 +24,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientHandler extends Thread implements Observer {
 
@@ -152,7 +153,7 @@ public class ClientHandler extends Thread implements Observer {
             }
             return;
         }
-
+        
         while (CONTINUE) {
             try {
                 // receive the answer from client 
@@ -206,11 +207,33 @@ public class ClientHandler extends Thread implements Observer {
                         writeObject(e);
                     }
                     
+                } else if (received instanceof GetUserData) {
+                    System.out.println("Client: " + username + "Requested Used data from: " + ((GetUserData)received).getUsername());
+                    try{
+                        writeObject(serverObs.getUserData( ((GetUserData)received).getUsername()) );
+                    }catch(IOException | SQLException | UserException e){
+                        writeObject(e);
+                    }
+                    
+                } else if (received instanceof RegisterUser) {
+                    System.out.println("Host request register");
+                    try{
+                        RegisterUser reg = (RegisterUser) received;
+                        serverObs.registerUser(reg.getUsername(),reg.getPassword());
+                        writeObject(new Success());
+                    }catch(SQLException | UserException e){
+                        writeObject(e);
+                    }
+                    
+                } else if (received instanceof InitialFilePackage) {
+                    System.out.println("Initial files package from client: " + username);
+                    InitialFilePackage filePackages = (InitialFilePackage)received;
+                    serverObs.addFilesBunk(username, filePackages);
                 } else if (received instanceof LoginInfo) {
                     try{
                         serverObs.userLogin((LoginInfo)received,s.getInetAddress().getHostAddress());
-                        startNotificationSocket((LoginInfo)received);
                         serverObs.addObserver(this);
+                        startNotificationSocket((LoginInfo)received);
                     }catch(UserException | SQLException e){
                         writeObject(e);
                         System.out.println("Login accepted for client: {" + s.getInetAddress());
@@ -221,10 +244,14 @@ public class ClientHandler extends Thread implements Observer {
                     username = ((LoginInfo) received).getUsername();
                     serverObs.addLoggedThread(this);
 
-                } else if (received instanceof InitialFilePackage) {
-                    System.out.println("Initial files package from client: " + username);
-                    InitialFilePackage filePackages = (InitialFilePackage)received;
-                    serverObs.addFilesBunk(username, filePackages);
+                } else if (received instanceof DataMass) {
+                    try{
+                        writeObject(serverObs.getAllUsersData());
+                        
+                    }catch(IOException | SQLException | UserException e){
+                        writeObject(e);
+                    }
+                    
                 } else if (received instanceof Logout) {
                     System.out.println("User: " + username + " Logged out");
                     serverObs.disconnectUser(username);
@@ -235,6 +262,8 @@ public class ClientHandler extends Thread implements Observer {
                         writeObject(serverObs.getTransferHistory(username));
                     } catch (SQLException ex) {
                     }
+                } else {
+                    System.out.println("I DON'T FEAR ANYTHING BUT THIS THING, THIS THING SCARES ME!");
                 }
                 
             }catch (IOException e) {
@@ -253,11 +282,17 @@ public class ClientHandler extends Thread implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        try{
-            notificationOut.writeObject(arg);
-            notificationOut.flush();
-            
-        }catch(IOException e){
-        }
+        System.out.println("##############update");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    notificationOut.writeObject(arg);
+                    notificationOut.flush();
+
+                }catch(IOException e){
+                }
+            }
+        }).start();
     }
 }

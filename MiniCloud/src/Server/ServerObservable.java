@@ -86,7 +86,15 @@ public class ServerObservable extends Observable{
     
     public ArrayList<ConnectedUser> getAuthenticatedUsers() throws SQLException{
         return DB.getAuthenticatedUsers();
-    } 
+    }
+    
+    public void registerUser(String username, String password) throws UserException, SQLException{
+        DB.registerUser(username, password);
+    }
+    
+    public CloudData getUserData(String username) throws SQLException, UserException{
+        return DB.getUserData(username);
+    }
     
     public List<ClientHandler> getLoggedUserThreads(){
         return loggedUsers;

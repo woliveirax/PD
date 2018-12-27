@@ -63,33 +63,43 @@ public class NotificationThread extends Thread {
             
             while(CONTINUE){
                 Object obj = in.readObject();
+                System.out.println("received a Notification Packet");
                 
                 if(obj instanceof String){
+                    System.out.println("Chat");
                             observable.sendChatMessage((String)obj);
 
                 } else if(obj instanceof AddFileRequest){
+                    System.out.println("Add File");
                     observable.addFileFromUser(((AddFileRequest)obj).getUsername(),
                                                 ((AddFileRequest)obj).getFile());
+                    
+                    int i = 0;
 
 
                 } else if (obj instanceof RemoveFileRequest) {
+                    System.out.println("remove file");
                     observable.removeFileFromUser(((RemoveFileRequest)obj).getUsername(),
                                                 ((RemoveFileRequest)obj).getFilename());
 
 
                 } else if (obj instanceof UpdateFileRequest) {
+                    System.out.println("update file");
                     observable.updateFileFromUser(((UpdateFileRequest)obj).getUsername(),
                                                 ((UpdateFileRequest)obj).getFile());
 
 
                 } else if (obj instanceof RemoveUser){
+                    System.out.println("remove user");
                     observable.removeUserFromFileList(((RemoveUser)obj).getUsername());
 
 
                 } else if (obj instanceof AddUser){
+                    System.out.println("######### add userrrrr ");
                     observable.addUserToFileList(((AddUser)obj).getUsername());
 
                 } else if (obj instanceof InitialFilePackageNotification){
+                    System.out.println("add init file");
                     observable.updateUserFiles(((InitialFilePackageNotification) obj).getUsername());
                 } else {
                     System.out.println("I DON'T FEAR ANYTHING BUT THIS THING, THIS THING SCARES ME!");
@@ -99,9 +109,9 @@ public class NotificationThread extends Thread {
         } catch (IOException ex) {
             try {
                 observable.logout();
-                //throw new RuntimeException("Error accepting the socket");
+                throw new RuntimeException("Error accepting the socket");
             } catch (IOException ex1) {
-                //throw new RuntimeException("Error accepting the socket, couldn't end threads");
+                throw new RuntimeException("Error accepting the socket, couldn't end threads");
             }
         } catch(Exception e){
             System.out.println("Error: " + e.getMessage());

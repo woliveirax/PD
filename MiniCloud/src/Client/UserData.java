@@ -19,6 +19,15 @@ public class UserData implements Serializable {
         fileList = new ArrayList<>();
     }
     
+    public void printValues(){
+        for(CloudData data : fileList){
+            System.out.println("user: " + data.getUser());
+            for(FileData file : data.getFiles()){
+                System.out.println("\t- "+ file.toString());
+            }
+        }
+    }
+    
     public void addNewUser(CloudData user){
         fileList.add(user);
     }

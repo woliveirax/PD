@@ -86,13 +86,7 @@ public class DataObservable extends Observable implements UpdateType {
     
     public void addFileFromUser(String user, FileData file){
         userdata.addFileToUser(user, file);
-        
-        for(CloudData x : userdata.getFileList()){
-            System.out.println("User: " + x.getUser());
-            for(FileData f : x.getFiles()){
-                System.out.println("\t- " + f.toString());
-            }
-        }
+        userdata.printValues(); //TODO:Remove
         
         setChanged();
         notifyObservers(FILE_UPDATE);

@@ -52,7 +52,7 @@ public class CommunicationHandler {
             if(answer instanceof LoginAccepted){
                 return true;
             } else {
-                throw new Exception(((Exception)answer).getCause());
+                throw ((Exception)answer);
             }
     }
     
@@ -94,10 +94,8 @@ public class CommunicationHandler {
         Object obj = receiveMsg();
         if(obj instanceof TransferHistoryPackage){
             return ((TransferHistoryPackage)obj).getHistory();
-        } else if(obj instanceof UserException){
-            throw ((UserException) obj);
         } else {
-            throw new Exception("Error while trying to get file transfer history!");
+            throw ((Exception) obj);
         }
     }
     
@@ -107,10 +105,8 @@ public class CommunicationHandler {
         Object obj = receiveMsg();
         if(obj instanceof CloudData){
             return (CloudData)obj;
-        }else if(obj instanceof Exception){
-            throw ((Exception)obj);
         } else {
-            throw new Exception("Could not handle Cloud Data on get user data!");
+           throw ((Exception) obj);
         }
     }
     
@@ -121,7 +117,7 @@ public class CommunicationHandler {
         if(obj instanceof DataMass){
             observable.setFileList((ArrayList<CloudData>)obj);
         } else {
-            throw (Exception) obj;
+            throw ((Exception) obj);
         }
     }
     
