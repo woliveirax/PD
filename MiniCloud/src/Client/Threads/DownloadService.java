@@ -9,6 +9,7 @@ import Exceptions.DirectoryException;
 import Exceptions.DownloadException;
 import Exceptions.FileException;
 import Client.DataObservable;
+import comm.Packets.TransferInfo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -33,6 +34,8 @@ public class DownloadService extends Thread {
     private final File directory;
     private final File file;
     
+    private final String dest;
+    private final String source;
     private final String address;
     private final int port;
 
@@ -48,10 +51,14 @@ public class DownloadService extends Thread {
      * @throws DirectoryException  if the directory already exists the system will throw this
      */
     
-    public DownloadService(DataObservable obs, String filename, String address, int port)
+    public DownloadService(DataObservable obs, String sourceName, String myUsername, String filename, String address, int port)
         throws FileException, DirectoryException
     {
         try{
+            this.dest = myUsername;
+            this.source = sourceName;
+            this.observable = obs;
+            
             this.address = address.trim();
             this.port = port;
 
@@ -123,11 +130,14 @@ public class DownloadService extends Thread {
         }catch(SocketTimeoutException e){
             if(file.exists())
                 file.delete();
+            
+            observable.receiveNotification("File \'" + file.getName() +"\' download failed, connection timedout");
             throw new DownloadException("Connection timed out!" +
                     " file transfer might be incomplete" + e);
         }catch(IOException e){
             if(file.exists())
                 file.delete();
+            observable.receiveNotification("File \'" + file.getName() +"\' download failed, file error!");
             throw new DownloadException("Error accessing socket or local file: "
                     + e);
         }finally{
@@ -136,6 +146,7 @@ public class DownloadService extends Thread {
             }catch(IOException e){
                 if(file.exists())
                     file.delete();
+                observable.receiveNotification("File \'" + file.getName() +"\' download failed, error while closing the file!");
                 System.out.println("error closing file!" + e);
             }
         }
@@ -148,8 +159,8 @@ public class DownloadService extends Thread {
             connectToPeer();
             downloadFile();
             
-            //TODO:
-            //observable.addFileTransfer(info);
+            observable.addFileTransfer(new TransferInfo(source, dest, file.getName()));
+            observable.receiveNotification("File \'" + file.getName() +"\' download successful!");
             
         }catch(FileNotFoundException e){
             System.out.println("Could not create output file! Error: " + e);
@@ -160,6 +171,8 @@ public class DownloadService extends Thread {
         }catch(DownloadException e){
             System.out.println("Error while trying to download the file: " + e);
             file.delete();
+        } catch (IOException ex) {
+            System.out.println("Error logging file to server");
         }finally{
             try{
                 socket.close();

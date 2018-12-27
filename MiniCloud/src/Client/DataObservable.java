@@ -1,5 +1,6 @@
 package Client;
 
+import Client.Threads.DownloadService;
 import comm.Packets.TransferInfo;
 import Client.Threads.KeepAliveThread;
 import Client.Threads.NotificationThread;
@@ -7,6 +8,7 @@ import Client.Threads.UploadService;
 import Client.WatchDog.WatchDog;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
+import Exceptions.FileException;
 import Exceptions.InvalidDirectoryException;
 import comm.CloudData;
 import comm.FileData;
@@ -115,8 +117,9 @@ public class DataObservable extends Observable implements UpdateType {
         return userdata.getFileList();
     }
     
-    public void setUploadPath(File file) throws InvalidDirectoryException{
+    public void setUploadPath(File file) throws InvalidDirectoryException, DirectoryException{
         userdata.setUploadPath(file);
+        uploadService.setDirectory();
         
         try{
             comm.sendInitialFilePackage();
@@ -203,6 +206,11 @@ public class DataObservable extends Observable implements UpdateType {
     
     public boolean registerUser(String username, String password) throws Exception{
         return comm.registerNewUser(username, password);
+    }
+    
+    //File peer download
+    public void DownloadFile(String username, String destUsername,String filename, String destIp, int destPort) throws FileException, DirectoryException{
+        new DownloadService(this, username, destUsername, filename, destIp, destPort).start();
     }
     
     private void initData() throws WatchDogException, DirectoryException, IOException {
