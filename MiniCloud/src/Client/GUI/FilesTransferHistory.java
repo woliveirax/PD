@@ -10,7 +10,9 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 
 public class FilesTransferHistory extends javax.swing.JFrame implements UpdateType{
@@ -47,6 +49,7 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
         Jhistory = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         btnReturn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnReturn.setText("Refresh");
@@ -188,8 +191,9 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
                 String dest = transfer.getDestinataryName();
                 String filename = transfer.getFileName();
                 String date = transfer.getDate().toString();
-                model.addRow(new Object[]{type,source,dest,filename,date});
+                model.addRow(new Object[]{type,filename,source,dest,date});
             }
+            
             Jhistory.setModel(model);
             
         } catch (Exception ex) {

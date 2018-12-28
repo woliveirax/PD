@@ -203,6 +203,15 @@ public class DataObservable extends Observable implements UpdateType {
         notifyObservers(FILE_UPDATE);
     }
     
+    public String getUserByIP(String ip){
+        for(CloudData user : userdata.getFileList()){
+            if(user.getIp().equals(ip))
+                return user.getUser();
+        }
+        
+        return "";
+    }
+    
     public void addFileTransfer(TransferInfo info) throws IOException{
         comm.addFileTransfer(info);
     }
