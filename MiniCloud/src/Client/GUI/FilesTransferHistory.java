@@ -135,8 +135,8 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
-        this.setVisible(false);
         previous.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnReturnActionPerformed
     
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed

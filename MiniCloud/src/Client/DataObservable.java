@@ -201,6 +201,13 @@ public class DataObservable extends Observable implements UpdateType {
         return comm.getTransferHistory(username);
     }
     
+    public void getAllDataFromServer() throws Exception{
+        comm.getAllDataFromServer();
+        
+        setChanged();
+        notifyObservers(FILE_UPDATE);
+    }
+    
     public void updateUserFiles(String username) throws Exception{
         userdata.updateUserFiles(username, comm.getUserData(username).getFiles());
         

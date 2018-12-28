@@ -15,6 +15,13 @@ public class CloudRegister extends javax.swing.JFrame {
         initComponents();
         this.obs = obs;
         this.previous = previous;
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                obs.shutdownClient();
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")

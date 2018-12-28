@@ -58,7 +58,7 @@ public class ClientHandler extends Thread implements Observer {
                     notificationOut.flush();
                 }
             } catch (IOException ex) {
-                System.out.println("couldn't send shutdown packet: " + ex);
+                //System.out.println("couldn't send shutdown packet: " + ex);
             }
         }
         
@@ -264,8 +264,9 @@ public class ClientHandler extends Thread implements Observer {
                     }
                 } else if (received instanceof DataMass) {
                     try{
-                        writeObject(serverObs.getAllUsersData());
-                        
+                        DataMass data = new DataMass(serverObs.getAllUsersData());
+                        writeObject(data);
+                        System.out.println("Data mass sent to user: " + username);
                     }catch(IOException | SQLException | UserException e){
                         writeObject(e);
                     }

@@ -114,7 +114,7 @@ public class CommunicationHandler {
         
         Object obj = receiveMsg();
         if(obj instanceof DataMass){
-            observable.setFileList((ArrayList<CloudData>)obj);
+            observable.setFileList(((DataMass)obj).getData());
         } else {
             throw ((Exception) obj);
         }

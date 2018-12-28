@@ -25,7 +25,25 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     public CloudMainScreen(DataObservable o) {
         initComponents();
         observable = o;
+        observable.addObserver(this);
+        
+        try {
+            observable.getAllDataFromServer();
+        } catch (Exception ex) {
+            System.out.println("erro com get data mass: " + ex);
+        }
         downloadSelection();
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                try {
+                    observable.logout();
+                    observable.shutdownClient();
+                } catch (IOException ex) {
+                }
+            }
+        });
     }
     
     @SuppressWarnings("unchecked")
@@ -319,23 +337,24 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     //TODO: this needs to do something
     @Override
     public void update(Observable o, Object arg) {
+        System.out.println("###############ola");
+        
         if(arg instanceof Integer){//Means it is a FileUpdate
-                
-            System.out.println("Ola amigo");
-                ArrayList<CloudData> users = observable.getUsers();
-                DefaultTableModel model = new DefaultTableModel();
-                model.addColumn("User");
-                model.addColumn("File Name");
-                model.addColumn("Size");
-                
-                for(CloudData user : users){
-                    ArrayList<FileData> files = user.getFiles();
-                    for(FileData file : files){
-                        //tableFiles.addRow(new Object[]{user.getUser(),file.getName(),file.getSize()});
-                        model.addRow(new Object[]{user.getUser(),file.getName(), file.getSize()});
-                    }
+            ArrayList<CloudData> users = observable.getUsers();
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("User");
+            model.addColumn("File Name");
+            model.addColumn("Size");
+
+            for(CloudData user : users){
+                ArrayList<FileData> files = user.getFiles();
+                for(FileData file : files){
+                    //tableFiles.addRow(new Object[]{user.getUser(),file.getName(),file.getSize()});
+                    model.addRow(new Object[]{user.getUser(),file.getName(), file.getSize()});
                 }
-                tableFiles.setModel(model);
+            }
+            
+            tableFiles.setModel(model);
         }else if(arg instanceof String)//Means it's a chat msg
             txtAreaChat.append((String)arg);
         else if(arg instanceof TransferNotification)//Means it's a transfernotification

@@ -13,8 +13,15 @@ public class CloudLogin extends javax.swing.JFrame {
     private JFileChooser chooser;
     
     public CloudLogin(DataObservable obs) {
-            initComponents();
-            this.obs = obs;
+        initComponents();
+        this.obs = obs;
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                obs.shutdownClient();
+            }
+        });
     }
     
     @SuppressWarnings("unchecked")
