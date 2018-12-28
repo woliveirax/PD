@@ -26,7 +26,6 @@ public class UploadService extends Thread {
     
     private File directory;
     
-    //TODO: must receive the handler for the Upload file counter
     public UploadService(DataObservable obs)
         throws DirectoryException, IOException
     {
@@ -142,13 +141,11 @@ public class UploadService extends Thread {
     public void run() {
         Socket clientSocket = null;
         try{
-            //TODO: add 1 to file upload counter
             while(CONTINUE){
                 clientSocket = server.accept();
                 HandleRequest(clientSocket);
             }
             
-            //TODO: ask server to write to keep log
         }catch(DownloadException e){
             System.out.println("Error while trying to download the file: " + e);
         }catch(ConnectException e){

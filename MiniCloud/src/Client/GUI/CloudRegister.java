@@ -186,13 +186,12 @@ public class CloudRegister extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        // TODO add your handling code here:
         this.setVisible(false);
         previous.setVisible(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed
-        obs.shutdownClient();//TODO check if this the right method
+        obs.shutdownClient();
         System.exit(0);
     }//GEN-LAST:event_btnLeaveActionPerformed
 
@@ -203,9 +202,8 @@ public class CloudRegister extends javax.swing.JFrame {
         String user = fieldUsername.getText();
         String pass = new String(fieldPassword.getPassword());
         
-//        if(sizeIsValid(user, 4, 10) && sizeIsValid(pass, 4, 10) && spellingIsValid(user)){
             try {
-                obs.registerUser(user, pass);//TODO: uncomment
+                obs.registerUser(user, pass);
                 obs.login(user,pass);
                 while(fUpload == null || fDownload == null){
                     try{
@@ -228,14 +226,10 @@ public class CloudRegister extends javax.swing.JFrame {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(),"Error in Aunthentication", JOptionPane.WARNING_MESSAGE);
             }
-//        }else{
-//            JOptionPane.showMessageDialog(this, "Username and password must have between 3 to 10 characters. Username cannot contain special characters, nor a number in the first letter", 
-//                    "Invalid Aunthentication Data", JOptionPane.WARNING_MESSAGE);
-//        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void fieldPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldPasswordActionPerformed
-        // TODO add your handling code here:
+ 
     }//GEN-LAST:event_fieldPasswordActionPerformed
 
         private File getDirectory(String msg)

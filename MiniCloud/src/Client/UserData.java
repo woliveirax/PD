@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class UserData implements Serializable {
-    private File downloadPath = null; //TODO: add file verification
+    private File downloadPath = null;
     private File uploadPath = null;
     private String username;
     

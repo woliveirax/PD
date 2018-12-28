@@ -106,7 +106,6 @@ public class DataObservable extends Observable implements UpdateType {
     
     public void addFileFromUser(String user, FileData file){
         userdata.addFileToUser(user, file);
-        userdata.printValues(); //TODO:Remove
         
         setChanged();
         notifyObservers(FILE_UPDATE);

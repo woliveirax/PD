@@ -60,7 +60,7 @@ public class DBConnection implements DBScripts, DatabaseConstants {
         }
     }
 
-    public boolean isConnected() throws SQLException {//TODO: verify this validation
+    public boolean isConnected() throws SQLException {
         Statement stmt = conn.createStatement();
         return conn.isValid(2) && !stmt.isClosed();
     }
@@ -466,7 +466,6 @@ public class DBConnection implements DBScripts, DatabaseConstants {
         }
     }
     
-    //TODO: remove this main
     public static void main(String[] args) {
         try {
             DBConnection conn = new DBConnection("admin", "admin", "project-soralis.pro", 55532);

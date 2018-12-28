@@ -13,7 +13,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -21,9 +20,6 @@ import java.util.Observer;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 public class CloudMainScreen extends javax.swing.JFrame implements Observer, UpdateType{
@@ -43,7 +39,6 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
         } catch (Exception ex) {
             System.out.println("erro com get data mass: " + ex);
         }
-        downloadSelection();
         
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -265,14 +260,14 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(11, 11, 11)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 312, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(12, 12, 12)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(mainPanelLayout.createSequentialGroup()
                                 .addComponent(btnTransfers, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(16, 16, 16))
         );
 
@@ -328,25 +323,6 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
         transfers.setVisible(true);
     }//GEN-LAST:event_btnTransfersActionPerformed
 
-    private void downloadSelection(){
-        tableFiles.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            @Override
-            public void valueChanged(ListSelectionEvent event) {
-                try {
-                    String value;
-                    Object o = tableFiles.getValueAt(tableFiles.getSelectedRow(),1);
-                    System.out.println(o.toString());
-                    if( o != null){
-                        value = o.toString();
-                        File f = new File(value);
-                        observable.addFileRequest(f);
-                    }
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(CloudMainScreen.this,ex.getMessage(), "Error in File Selection", JOptionPane.WARNING_MESSAGE);
-                }
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogout;
@@ -406,9 +382,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
                     model.addRow(new Object[]{user.getUser(),file.getName(), format(file.getSize(), 0)});
                 }
             }
-            SwingUtilities.invokeLater(new Runnable(){public void run(){
-                tableFiles.setModel(model);
-            }});
+            tableFiles.setModel(model);
             
         }else if(arg instanceof String) {//Means it's a chat msg
             txtAreaChat.append((String)arg);

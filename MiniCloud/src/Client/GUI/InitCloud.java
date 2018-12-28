@@ -175,16 +175,16 @@ public class InitCloud extends javax.swing.JFrame {
     }//GEN-LAST:event_btnContinueActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        // TODO add your handling code here:
+        
         System.exit(0);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void fieldPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldPortActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_fieldPortActionPerformed
 
     private void fieldIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldIPActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_fieldIPActionPerformed
 
     /**

@@ -50,7 +50,7 @@ public class WatchDog extends Thread{
             register(Paths.get(path));
             this.interrupt();
         }catch(IOException e){
-            throw new WatchDogRuntimeException("Error watchdog: "+e);//TODO: try to remove this.
+            throw new WatchDogRuntimeException("Error watchdog: "+e);
         }
     }
     
@@ -113,7 +113,7 @@ public class WatchDog extends Thread{
             
             // reset key and remove from set if directory no longer accessible
             boolean valid = key.reset();
-            if (!valid) { //TODO: Figure a way to handle if this happens
+            if (!valid) {
                 break;
             }
         }

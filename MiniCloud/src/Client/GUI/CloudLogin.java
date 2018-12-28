@@ -8,19 +8,18 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-
 public class CloudLogin extends javax.swing.JFrame {
-    
+
     private final DataObservable obs;
     private JFileChooser chooser;
-    
+
     public CloudLogin(DataObservable obs) {
         initComponents();
         this.obs = obs;
-        
+
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
-        
+        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
+
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
@@ -28,7 +27,7 @@ public class CloudLogin extends javax.swing.JFrame {
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -197,48 +196,46 @@ public class CloudLogin extends javax.swing.JFrame {
         File fUpload = null;
         File fDownload = null;
         try {
-            // TODO add your handling code here:
-                obs.login(fieldUsername.getText(),new String(fieldPassword.getPassword()));
-                while(fUpload == null || fDownload == null){
-                    try{
-                        if(obs.getUploadPath() == null){
+            obs.login(fieldUsername.getText(), new String(fieldPassword.getPassword()));
+            while (fUpload == null || fDownload == null) {
+                try {
+                    if (obs.getUploadPath() == null) {
                         fUpload = getDirectory("UPLOAD folder");
                         obs.setUploadPath(fUpload);
-                        }
-                        if(obs.getDownloadPath() == null){
-                            fDownload = getDirectory("DOWNLOAD folder");
-                            obs.setDownloadPath(fDownload);
-                        }
-                    }catch(InvalidDirectoryException ex){ } 
+                    }
+                    if (obs.getDownloadPath() == null) {
+                        fDownload = getDirectory("DOWNLOAD folder");
+                        obs.setDownloadPath(fDownload);
+                    }
+                } catch (InvalidDirectoryException ex) {
                 }
-                
-                CloudMainScreen mainScreen = new  CloudMainScreen(obs);
-                this.setVisible(false);
-                mainScreen.setVisible(true);
-            }catch (Exception ex) {
-                String str = "Provide a valid authentication";
-                JOptionPane.showMessageDialog(this, 
-                              ex.getMessage(), 
-                              "Not valid", 
-                              JOptionPane.WARNING_MESSAGE);
+            }
+
+            CloudMainScreen mainScreen = new CloudMainScreen(obs);
+            this.setVisible(false);
+            mainScreen.setVisible(true);
+        } catch (Exception ex) {
+            String str = "Provide a valid authentication";
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(),
+                    "Not valid",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed
-        obs.shutdownClient();//TODO check if this the right method
+        obs.shutdownClient();
         System.exit(0);
     }//GEN-LAST:event_btnLeaveActionPerformed
 
     private void fieldPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldPasswordActionPerformed
-        // TODO add your handling code here:
         //CloudRegister registerScreen = new CloudRegister();
         this.setVisible(false);
         //registerScreen.setVisible(true);
     }//GEN-LAST:event_fieldPasswordActionPerformed
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        // TODO add your handling code here:
-        CloudRegister register = new CloudRegister(obs,this);
+        CloudRegister register = new CloudRegister(obs, this);
         this.setVisible(false);
         register.setVisible(true);
 
@@ -246,26 +243,22 @@ public class CloudLogin extends javax.swing.JFrame {
 
 
     private void fieldUsername1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldUsername1ActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_fieldUsername1ActionPerformed
 
     private File getDirectory(String msg)
-            throws InvalidDirectoryException
-    {
+            throws InvalidDirectoryException {
         chooser = new JFileChooser(System.getProperty("user.home") + "/Desktop");
-        
+
         chooser.setDialogTitle(msg);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
-        
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-        {
+
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
             System.out.println(f.toString());
             return f;
-        }
-        else
-        {
+        } else {
             throw new InvalidDirectoryException("Directory is not valid");
         }
     }

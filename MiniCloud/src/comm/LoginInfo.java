@@ -13,7 +13,6 @@ public class LoginInfo implements Serializable {
     private final ClientConnection connection;
     
     public LoginInfo(String username, String password, ClientConnection conn){
-        //TODO: add name and password validation (Password can't be empty)
         this.username = username;
         this.password = password;
         this.connection = conn;
