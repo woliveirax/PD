@@ -77,6 +77,7 @@ public class UploadService extends Thread {
         OutputStream out;
         String requestedFileName,requestedCanonicalFilePath;
         FileInputStream requestedFileInputStream;
+        String username = observable.getUserByIP(socket.getInetAddress().getHostAddress());
         
         try{
             socket.setSoTimeout(TIMEOUT);
@@ -108,18 +109,20 @@ public class UploadService extends Thread {
             while((nbytes = requestedFileInputStream.read(chunk))>0){                        
                 out.write(chunk, 0, nbytes);
                 out.flush();
-            }     
-
-            System.out.println("Client with file to transfer - upload finished");
-           
-        }catch(FileNotFoundException e){   //Subclasse de IOException                 
+            }
+            
+            observable.receiveNotification("File " + requestedFileName + " uploaded to: " + username);
+            
+        }catch(FileNotFoundException e){   //Subclasse de IOException
+            observable.receiveNotification("Host: " + username + " requested a file, but it wasn't found");
             throw new FileNotFoundException("The exceptio {" + e + 
-                    "} ocorred while trying to open the file requested");                   
-                              
+                    "} ocorred while trying to open the file requested");
         }catch(SocketTimeoutException e){
+            observable.receiveNotification("Connection to " + username + " timed out");
             throw new DownloadException("Connection timed out!" +
                     " file transfer might be incomplete" + e);
         }catch(IOException e){
+            observable.receiveNotification("Error accessing file");
             throw new DownloadException("Error accessing socket or local file: "
                     + e);
         }
