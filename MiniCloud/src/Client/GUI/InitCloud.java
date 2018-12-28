@@ -3,6 +3,8 @@ package Client.GUI;
 import Client.DataObservable;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 
@@ -10,6 +12,8 @@ public class InitCloud extends javax.swing.JFrame {
 
     public InitCloud() {
         initComponents();
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
     }
 
     @SuppressWarnings("unchecked")
@@ -160,8 +164,8 @@ public class InitCloud extends javax.swing.JFrame {
             DataObservable obs = new DataObservable();
             obs.startServerConnection(fieldIP.getText(),Integer.parseInt(fieldPort.getText()));
             CloudLogin login = new CloudLogin(obs);
-            this.setVisible(false);
             login.setVisible(true);
+            this.dispose();
         } catch (WatchDogException | DirectoryException | IOException ex) {
             JOptionPane.showMessageDialog(this, 
                               ex.getMessage(), 

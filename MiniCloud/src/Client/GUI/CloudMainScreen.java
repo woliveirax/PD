@@ -5,8 +5,14 @@ import Client.TransferNotification;
 import Client.UpdateType;
 import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
+import Exceptions.FileException;
 import comm.CloudData;
 import comm.FileData;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +20,7 @@ import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -26,6 +33,9 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
         initComponents();
         observable = o;
         observable.addObserver(this);
+        
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         
         try {
             observable.getAllDataFromServer();
@@ -41,6 +51,32 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
                     observable.logout();
                     observable.shutdownClient();
                 } catch (IOException ex) {
+                }
+            }
+        });
+        
+        tableFiles.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent mouseEvent) {
+                JTable table =(JTable) mouseEvent.getSource();
+                Point point = mouseEvent.getPoint();
+                int row = table.rowAtPoint(point);
+                if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                    String username = table.getModel().getValueAt(row, 0).toString();
+                    String filename = table.getModel().getValueAt(row, 1).toString();
+                    CloudData user = observable.getConnectionInfo(username);
+                    
+                    try{
+                        if(user == null)
+                            throw new DirectoryException("");
+                        
+                        
+                        observable.DownloadFile(username, filename, user.getIp(), user.getTransferPort());
+                    }catch(DirectoryException | FileException e){
+                        JOptionPane.showMessageDialog(tableFiles, 
+                              e.getMessage() + "Invalid file", 
+                              "Error trying to download file!", 
+                              JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
@@ -290,7 +326,8 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
 
     private void btnTransfersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransfersActionPerformed
         FilesTransferHistory transfers = new FilesTransferHistory(observable, this);
-        this.setVisible(false);
+        //this.setVisible(false);
+        transfers.fillHistory();
         transfers.setVisible(true);
     }//GEN-LAST:event_btnTransfersActionPerformed
 
@@ -337,30 +374,35 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     //TODO: this needs to do something
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println("###############ola");
         
         if(arg instanceof Integer){//Means it is a FileUpdate
             ArrayList<CloudData> users = observable.getUsers();
-            DefaultTableModel model = new DefaultTableModel();
+            DefaultTableModel model = new DefaultTableModel(){
+                            @Override
+                            public boolean isCellEditable(int row, int column) {
+                                return false;
+                            }
+                        };
+            
             model.addColumn("User");
             model.addColumn("File Name");
             model.addColumn("Size");
-
+            
             for(CloudData user : users){
+                if(user.getUser().equals(observable.getUsername()))
+                    continue;
+                
                 ArrayList<FileData> files = user.getFiles();
                 for(FileData file : files){
-                    //tableFiles.addRow(new Object[]{user.getUser(),file.getName(),file.getSize()});
                     model.addRow(new Object[]{user.getUser(),file.getName(), file.getSize()});
                 }
             }
-            
             tableFiles.setModel(model);
-        }else if(arg instanceof String)//Means it's a chat msg
+            
+        }else if(arg instanceof String) {//Means it's a chat msg
             txtAreaChat.append((String)arg);
-        else if(arg instanceof TransferNotification)//Means it's a transfernotification
+        
+        }else if(arg instanceof TransferNotification)//Means it's a transfernotification
             fieldNotification.setText(((TransferNotification)arg).getDetails());
-        else //Means it's a dta mass package
-            System.out.println("Data Mass xD"); //TODO: replace
-           
     }
 }

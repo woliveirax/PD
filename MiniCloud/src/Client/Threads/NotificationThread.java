@@ -63,11 +63,10 @@ public class NotificationThread extends Thread {
             
             while(CONTINUE){
                 Object obj = in.readObject();
-                System.out.println("received a Notification Packet");
                 
                 if(obj instanceof String){
-                    System.out.println("Chat");
-                            observable.sendChatMessage((String)obj);
+                    System.out.println("Chat message");
+                            observable.receiveChatMessage((String)obj);
 
                 } else if(obj instanceof AddFileRequest){
                     System.out.println("Add File");
@@ -93,7 +92,7 @@ public class NotificationThread extends Thread {
 
 
                 } else if (obj instanceof AddUser){
-                    System.out.println("######### add userrrrr ");
+                    System.out.println("user added");
                     observable.addUserToFileList(((AddUser)obj).getUsername());
 
                 } else if (obj instanceof InitialFilePackageNotification){
@@ -118,7 +117,7 @@ public class NotificationThread extends Thread {
                 System.out.println("couldn't log out");
             }
         } catch(Exception e){
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error notification: " + e.getMessage());
         }
     }
 }

@@ -50,7 +50,7 @@ public class WatchDog extends Thread{
             register(Paths.get(path));
             this.interrupt();
         }catch(IOException e){
-            throw new WatchDogRuntimeException("Error: "+e);//TODO: try to remove this.
+            throw new WatchDogRuntimeException("Error watchdog: "+e);//TODO: try to remove this.
         }
     }
     

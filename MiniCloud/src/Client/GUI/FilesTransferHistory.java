@@ -2,20 +2,36 @@ package Client.GUI;
 
 import Client.DataObservable;
 import Client.UpdateType;
+import comm.CloudData;
+import comm.FileData;
 import comm.Packets.TransferInfo;
-import java.io.IOException;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 
 public class FilesTransferHistory extends javax.swing.JFrame implements UpdateType{
 
     private final CloudMainScreen previous;
     private final DataObservable obs;
-    public FilesTransferHistory(DataObservable obs, CloudMainScreen previous) {
+    public FilesTransferHistory(DataObservable obs, CloudMainScreen prev) {
         initComponents();
         this.obs = obs;
-        this.previous = previous;
+        this.previous = prev;
+        
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+        
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                setVisible(false);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -28,12 +44,12 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
         titlePanel = new javax.swing.JPanel();
         labelTitle = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        txtAreaHistory = new javax.swing.JTextArea();
+        Jhistory = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btnReturn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnReturn.setText("Return");
+        btnReturn.setText("Refresh");
         btnReturn.setInheritsPopupMenu(true);
         btnReturn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -48,7 +64,7 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
         btnLeave.setBackground(new java.awt.Color(255, 255, 255));
         btnLeave.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/system-log-out.png"))); // NOI18N
-        btnLeave.setText("Leave");
+        btnLeave.setText("Close");
         btnLeave.setToolTipText("");
         btnLeave.setInheritsPopupMenu(true);
         btnLeave.addActionListener(new java.awt.event.ActionListener() {
@@ -79,10 +95,18 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        txtAreaHistory.setEditable(false);
-        txtAreaHistory.setColumns(20);
-        txtAreaHistory.setRows(5);
-        jScrollPane2.setViewportView(txtAreaHistory);
+        Jhistory.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(Jhistory);
 
         javax.swing.GroupLayout loginPanelLayout = new javax.swing.GroupLayout(loginPanel);
         loginPanel.setLayout(loginPanelLayout);
@@ -135,48 +159,50 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnActionPerformed
-        previous.setVisible(true);
-        this.dispose();
+        fillHistory();
     }//GEN-LAST:event_btnReturnActionPerformed
     
     private void btnLeaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeaveActionPerformed
-        try {
-            obs.logout();
-            obs.shutdownClient();
-            System.exit(0);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, 
-                              ex.getMessage() + "Forced shutdown activated", 
-                              "Error trying to leave", 
-                              JOptionPane.WARNING_MESSAGE);
-            System.exit(1);
-        }
+        this.setVisible(false);
     }//GEN-LAST:event_btnLeaveActionPerformed
     public void fillHistory(){
-        int usersCount = obs.getUsers().size();
-            String username = "";
-            ArrayList<TransferInfo> transfers;
-            for(int i =0; i < usersCount ; i++){
-                try {
-                    username = obs.getUsers().get(i).getUser();
-                    transfers = obs.getTransferHistory(username);
-                    for(TransferInfo transfer : transfers){
-                        txtAreaHistory.append(transfer.toString());
-                    }
-                } catch (Exception ex) {
-                    txtAreaHistory.append(username + ": " + "has one corrumpted file");
-                }
-                
+        ArrayList<TransferInfo> transfers;
+        try {
+            transfers = obs.getTransferHistory(obs.getUsername());
+            DefaultTableModel model = new DefaultTableModel(){
+                            @Override
+                            public boolean isCellEditable(int row, int column) {
+                                return false;
+                            }
+                        };
+            
+            model.addColumn("Type");
+            model.addColumn("Filename");
+            model.addColumn("Source");
+            model.addColumn("Destination");
+            model.addColumn("Date");
+            
+            for(TransferInfo transfer : transfers){
+                String type = transfer.getSourceName().equals(obs.getUsername())? "upload" : "download";
+                String source = transfer.getSourceName();
+                String dest = transfer.getDestinataryName();
+                String filename = transfer.getFileName();
+                String date = transfer.getDate().toString();
+                model.addRow(new Object[]{type,source,dest,filename,date});
             }
+            Jhistory.setModel(model);
+            
+        } catch (Exception ex) {
+        }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable Jhistory;
     private javax.swing.JButton btnLeave;
     private javax.swing.JButton btnReturn;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel labelTitle;
     private javax.swing.JPanel loginPanel;
     private javax.swing.JPanel titlePanel;
-    private javax.swing.JTextArea txtAreaHistory;
     // End of variables declaration//GEN-END:variables
 
 }

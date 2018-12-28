@@ -103,16 +103,7 @@ public class ClientHandler extends Thread implements Observer {
 
         for (int i = 0; i < serverObs.getLoggedUserThreads().size(); i++) {
             if (serverObs.getLoggedUserThreads().get(i).username.compareTo(dest_name) == 0) {
-                try {
-                    serverObs.getLoggedUserThreads().get(i).writeObject(msg);
-                } catch (IOException e) {
-                    try {
-                        serverObs.getLoggedUserThreads().get(i).writeObject(
-                                new IOException("Error while sending chat msg"));
-                    } catch (IOException ex) {
-                        e.printStackTrace();
-                    }
-                }
+                    serverObs.getLoggedUserThreads().get(i).notify(msg);
                 found = true;
                 break;
             }
@@ -133,23 +124,9 @@ public class ClientHandler extends Thread implements Observer {
         //à msg colocar no ini: nome do user:
         ArrayList<ConnectedUser> outsideUsers;
         msg = username + ": " + msg;
-
-        try {
-            outsideUsers =  serverObs.getAuthenticatedUsers();
-                    
-            for (ClientHandler user : serverObs.getLoggedUserThreads()){
-                try {
-                    user.writeObject(msg);
-                } catch (IOException ex) {
-                    System.out.println("Error sending chat message");
-                }
-            }
-            
-            serverObs.broadcastUdpPacketToClients(msg);
-            
-        } catch(SQLException e){
-              System.out.println(e);
-        }
+        
+        serverObs.sendChatMessage(msg);
+        serverObs.broadcastUdpPacketToClients(msg);
     }
 
     @Override
@@ -174,12 +151,15 @@ public class ClientHandler extends Thread implements Observer {
                 // receive the answer from client 
                 received = in.readObject();
                 
-                if (received instanceof String) {//means a message is to be sent to other people                    
+                if (received instanceof String) {//means a message is to be sent to other people  
                     String msg = (String) received;
+                    System.out.println("user: "+ username + " wants to send a message: " + msg);
                     String[] splitted = msg.split("\\s+|\\n+|\\@");//separates when it encounters a space(\\s), a paragraph(\\n) or an arroba(\\@)
                     if (msg.startsWith("@", 0) && serverObs.userExists(splitted[1])) {
+                        System.out.println("sending private message");
                         sendPrivateMsg(msg, splitted[1]);
                     } else {
+                        System.out.println("Sending global message");
                         sendGlobalMsg(msg);
                     }
 
@@ -216,7 +196,7 @@ public class ClientHandler extends Thread implements Observer {
                     
                 } else if (received instanceof DataMass) {
                     try{
-                        writeObject(serverObs.getAllUsersData());
+                        writeObject(new DataMass(serverObs.getAllUsersData()));
                         
                     }catch(IOException | SQLException | UserException e){
                         writeObject(e);
@@ -262,16 +242,8 @@ public class ClientHandler extends Thread implements Observer {
                         writeObject(e);
                         System.out.println("Login denied for client: {" + s.getInetAddress()+ "}");
                     }
-                } else if (received instanceof DataMass) {
-                    try{
-                        DataMass data = new DataMass(serverObs.getAllUsersData());
-                        writeObject(data);
-                        System.out.println("Data mass sent to user: " + username);
-                    }catch(IOException | SQLException | UserException e){
-                        writeObject(e);
-                    }
                     
-                } else if (received instanceof Logout) {
+                }  else if (received instanceof Logout) {
                     System.out.println("User: " + username + " Logged out");
                     serverObs.disconnectUser(username);
                     
@@ -280,7 +252,7 @@ public class ClientHandler extends Thread implements Observer {
                     try {
                         writeObject(serverObs.getTransferHistory(username));
                     } catch (SQLException ex) {
-                        System.out.println("error serveobssss: " + ex);
+                        System.out.println("Error getting registry: " + ex);
                     }
                 } else if (received instanceof TransferInfo) {
                     System.out.println("client : " + username + " requested new additon to file history");
@@ -305,6 +277,16 @@ public class ClientHandler extends Thread implements Observer {
     private synchronized void writeObject(Object obj) throws IOException{
         out.writeObject(obj);
         out.flush();
+    }
+    
+    public void notify(Object arg){
+        try{
+            synchronized(notification){
+                notificationOut.writeObject(arg);
+                notificationOut.flush();
+            }
+        }catch(IOException e){
+        }
     }
 
     @Override

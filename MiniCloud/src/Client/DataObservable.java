@@ -52,6 +52,14 @@ public class DataObservable extends Observable implements UpdateType {
         watchdog.start();
         uploadService.start();
     }
+
+    public String getUsername() {
+        return userdata.getUsername();
+    }
+    
+    public CloudData getConnectionInfo(String username){
+        return userdata.getUserData(username);
+    }
     
     //Get connection settings
     public int getKeepAlivePort(){
@@ -68,6 +76,7 @@ public class DataObservable extends Observable implements UpdateType {
     
     //Login/logout
     public boolean login(String username, String password) throws IOException, Exception{
+        userdata.setUsername(username);
         return comm.login(username,password);
     }
     
@@ -163,7 +172,8 @@ public class DataObservable extends Observable implements UpdateType {
     }
     
     public void sendChatMessage(String msg) throws IOException{
-        comm.sendChatMessage(msg);
+        if(!msg.isEmpty())
+            comm.sendChatMessage(msg);
     }
 
     public String getServerIPAddr() {
@@ -220,8 +230,8 @@ public class DataObservable extends Observable implements UpdateType {
     }
     
     //File peer download
-    public void DownloadFile(String username, String destUsername,String filename, String destIp, int destPort) throws FileException, DirectoryException{
-        new DownloadService(this, username, destUsername, filename, destIp, destPort).start();
+    public void DownloadFile(String destUsername,String filename, String destIp, int destPort) throws FileException, DirectoryException{
+        new DownloadService(this, userdata.getUsername(), destUsername, filename, destIp, destPort).start();
     }
     
     private void initData() throws WatchDogException, DirectoryException, IOException {

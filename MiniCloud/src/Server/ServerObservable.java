@@ -180,6 +180,12 @@ public class ServerObservable extends Observable{
         DB.addHistoryRegister(info.getSourceName(), info.getDestinataryName(), info.getFileName());
     }
     
+    public void sendChatMessage(String msg){
+        
+        setChanged();
+        notifyObservers(msg);
+    }
+    
     public void sendUdpPacketToClient(ConnectedUser user, Object obj){
         keepAlive.sendUdpPacketToClient(user, obj);
     }

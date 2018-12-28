@@ -1,7 +1,6 @@
 package Client.Threads;
 
 import Client.DataObservable;
-import comm.Packets.TransferInfo;
 import java.io.File;
 
 public class Client {
@@ -18,18 +17,16 @@ public class Client {
                 x.login("wallace", "abcd");
                 
                 x.setUploadPath(new File("C:\\Users\\Skully\\Downloads\\Upload"));
-            
-                x.addFileTransfer(new TransferInfo("wallace","joana", "xpto.asp"));
-                System.out.println(x.getTransferHistory("wallace"));
-                x.addFileTransfer(new TransferInfo("wallace","joana", "Gosto muito de it :)"));
-                System.out.println("-----------");
-                System.out.println(x.getTransferHistory("joana"));
+                x.setDownloadPath(new File("C:\\Users\\Skully\\Downloads"));
                 
+                System.out.println("-----------");
+//                //System.out.println(x.getTransferHistory("joana"));
+//                
+//                x.DownloadFile("moira", "joana", "abc.pdf", "192.168.1.71", 54093);
             }catch(Exception e){
                 System.out.println(e);
                 x.logout();
             }
-            
             
             //Thread.sleep(5000);
             

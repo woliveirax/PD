@@ -2,6 +2,8 @@ package Client.GUI;
 
 import Client.DataObservable;
 import Exceptions.InvalidDirectoryException;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -15,6 +17,9 @@ public class CloudLogin extends javax.swing.JFrame {
     public CloudLogin(DataObservable obs) {
         initComponents();
         this.obs = obs;
+        
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override

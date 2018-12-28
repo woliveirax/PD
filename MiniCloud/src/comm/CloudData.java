@@ -23,6 +23,16 @@ public class CloudData implements Serializable {
     public String getUser() {
         return user;
     }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public int getTransferPort() {
+        return transferPort;
+    }
+    
+    
     
     public ArrayList<FileData> getFiles() {
         return files;

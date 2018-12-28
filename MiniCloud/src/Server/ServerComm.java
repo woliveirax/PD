@@ -87,7 +87,7 @@ public class ServerComm extends Thread{
             }catch(IOException ex){
                 System.out.println(ex);
             }
-            System.out.println(e); 
+            System.out.println(e);
         }
     }
 }

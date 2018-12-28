@@ -12,11 +12,20 @@ import java.util.List;
 public class UserData implements Serializable {
     private File downloadPath = null; //TODO: add file verification
     private File uploadPath = null;
+    private String username;
     
     private List<CloudData> fileList;
     
     public UserData() {
         fileList = new ArrayList<>();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
     
     public void printValues(){
@@ -51,11 +60,10 @@ public class UserData implements Serializable {
             }
     }
     
-    private CloudData getUserData(String user){
+    public CloudData getUserData(String user){
         for(CloudData data : fileList)
             if(data.getUser().compareTo(user) == 0)
                 return data;
-        
         return null;
     }
     
