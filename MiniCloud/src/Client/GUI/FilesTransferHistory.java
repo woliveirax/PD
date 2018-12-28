@@ -66,7 +66,7 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
 
         btnLeave.setBackground(new java.awt.Color(255, 255, 255));
         btnLeave.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/system-log-out.png"))); // NOI18N
+        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/logout.png"))); // NOI18N
         btnLeave.setText("Close");
         btnLeave.setToolTipText("");
         btnLeave.setInheritsPopupMenu(true);

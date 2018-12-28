@@ -71,11 +71,10 @@ public class CloudRegister extends javax.swing.JFrame {
         labelPassword.setText("Password");
 
         fieldUsername.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
-        fieldUsername.setText("Pegasus");
 
         btnLeave.setBackground(new java.awt.Color(255, 255, 255));
         btnLeave.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/system-log-out.png"))); // NOI18N
+        btnLeave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/logout.png"))); // NOI18N
         btnLeave.setText("Leave");
         btnLeave.setInheritsPopupMenu(true);
         btnLeave.addActionListener(new java.awt.event.ActionListener() {
@@ -107,7 +106,11 @@ public class CloudRegister extends javax.swing.JFrame {
         );
 
         fieldPassword.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
-        fieldPassword.setText("jPasswordField1");
+        fieldPassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fieldPasswordActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout registerPanelLayout = new javax.swing.GroupLayout(registerPanel);
         registerPanel.setLayout(registerPanelLayout);
@@ -230,6 +233,10 @@ public class CloudRegister extends javax.swing.JFrame {
 //                    "Invalid Aunthentication Data", JOptionPane.WARNING_MESSAGE);
 //        }
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void fieldPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldPasswordActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fieldPasswordActionPerformed
 
         private File getDirectory(String msg)
             throws InvalidDirectoryException

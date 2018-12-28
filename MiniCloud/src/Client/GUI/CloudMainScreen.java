@@ -132,7 +132,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
         jScrollPane3.setViewportView(fieldMessage);
 
         btnLogout.setBackground(new java.awt.Color(255, 255, 255));
-        btnLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/system-log-out.png"))); // NOI18N
+        btnLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Client/GUI/logout.png"))); // NOI18N
         btnLogout.setText("Logout");
         btnLogout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
