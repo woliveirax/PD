@@ -146,7 +146,7 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
             System.exit(0);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, 
-                              "Forced shutdown activated", 
+                              ex.getMessage() + "Forced shutdown activated", 
                               "Error trying to leave", 
                               JOptionPane.WARNING_MESSAGE);
             System.exit(1);

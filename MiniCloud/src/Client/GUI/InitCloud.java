@@ -164,7 +164,7 @@ public class InitCloud extends javax.swing.JFrame {
             login.setVisible(true);
         } catch (WatchDogException | DirectoryException | IOException ex) {
             JOptionPane.showMessageDialog(this, 
-                              "Provide a valid IP and Port", 
+                              ex.getMessage(), 
                               "Not valid", 
                               JOptionPane.WARNING_MESSAGE);
         }

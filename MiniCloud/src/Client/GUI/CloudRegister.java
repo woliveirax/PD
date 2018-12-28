@@ -183,11 +183,11 @@ public class CloudRegister extends javax.swing.JFrame {
         File fDownload = null;
        
         String user = fieldUsername.getText();
-        String pass = fieldPassword.getSelectedText();
+        String pass = new String(fieldPassword.getPassword());
         
 //        if(sizeIsValid(user, 4, 10) && sizeIsValid(pass, 4, 10) && spellingIsValid(user)){
             try {
-                //obs.registerUser(user, pass);//TODO: uncomment
+                obs.registerUser(user, pass);//TODO: uncomment
                 obs.login(user,pass);
                 while(fUpload == null || fDownload == null){
                     try{
@@ -208,8 +208,7 @@ public class CloudRegister extends javax.swing.JFrame {
                 this.setVisible(false);
                 mainScreen.setVisible(true);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Register was not possible. Try again or leave it as it is :P.", 
-                    "Error in Aunthentication", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(),"Error in Aunthentication", JOptionPane.WARNING_MESSAGE);
             }
 //        }else{
 //            JOptionPane.showMessageDialog(this, "Username and password must have between 3 to 10 characters. Username cannot contain special characters, nor a number in the first letter", 

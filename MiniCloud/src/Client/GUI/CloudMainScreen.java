@@ -16,6 +16,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 public class CloudMainScreen extends javax.swing.JFrame implements Observer, UpdateType{
     JFileChooser chooser;
@@ -248,7 +249,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
             login.setVisible(true);
         } catch (WatchDogException | IOException | DirectoryException ex) {
             JOptionPane.showMessageDialog(this, 
-                              "Forced shutdown activated", 
+                              ex.getMessage() + "Forced shutdown activated", 
                               "Error trying to loggout", 
                               JOptionPane.WARNING_MESSAGE);
             System.exit(1);
@@ -258,12 +259,12 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         try { 
             observable.sendChatMessage(fieldMessage.getText());
+            fieldMessage.setText("");
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, 
-                              "Forced shutdown activated", 
+                              ex.getMessage(), 
                               "Error trying to send msg", 
                               JOptionPane.WARNING_MESSAGE);
-            System.exit(1);
         }
     }//GEN-LAST:event_btnSendActionPerformed
 
@@ -287,7 +288,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
                         observable.addFileRequest(f);
                     }
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(CloudMainScreen.this, "The item selected cannot be downloaded", "Error in File Selection", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(CloudMainScreen.this,ex.getMessage(), "Error in File Selection", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
@@ -317,18 +318,13 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     @Override
     public void update(Observable o, Object arg) {
         if(arg instanceof Integer){//Means it is a FileUpdate
+               
                 ArrayList<CloudData> users = observable.getUsers();
-                int i = 0, j = 0;
-                
                 for(CloudData user : users){
                     ArrayList<FileData> files = user.getFiles();
                     for(FileData file : files){
-                        tableFiles.setValueAt(file.getName(),i+j,0);
-                        tableFiles.setValueAt(file.getName(),i+j,1);
-                        tableFiles.setValueAt(file.getSize(),i+j,2);
-                        j++;
+                        //tableFiles.addRow(new Object[]{user.getUser(),file.getName(),file.getSize()});
                     }
-                    i++;
                 }
         }else if(arg instanceof String)//Means it's a chat msg
             txtAreaChat.append((String)arg);

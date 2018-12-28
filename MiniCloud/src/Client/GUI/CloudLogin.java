@@ -185,7 +185,7 @@ public class CloudLogin extends javax.swing.JFrame {
         File fDownload = null;
         try {
             // TODO add your handling code here:
-                obs.login(fieldUsername.getText(),fieldPassword.getSelectedText());
+                obs.login(fieldUsername.getText(),new String(fieldPassword.getPassword()));
                 while(fUpload == null || fDownload == null){
                     try{
                         if(obs.getUploadPath() == null){
@@ -204,8 +204,8 @@ public class CloudLogin extends javax.swing.JFrame {
                 mainScreen.setVisible(true);
             }catch (Exception ex) {
                 String str = "Provide a valid authentication";
-            JOptionPane.showMessageDialog(this, 
-                              str, 
+                JOptionPane.showMessageDialog(this, 
+                              ex.getMessage(), 
                               "Not valid", 
                               JOptionPane.WARNING_MESSAGE);
         }
