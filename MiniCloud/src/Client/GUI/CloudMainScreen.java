@@ -241,10 +241,12 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         try {
+            observable.logout();
             DataObservable obs = new DataObservable();
             CloudLogin login = new CloudLogin(obs);
             obs.startServerConnection(observable.getServerIPAddr(),observable.getServerPort());
-            obs.logout();
+            observable = obs;
+            
             this.setVisible(false);
             login.setVisible(true);
         } catch (WatchDogException | IOException | DirectoryException ex) {
@@ -318,14 +320,22 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     @Override
     public void update(Observable o, Object arg) {
         if(arg instanceof Integer){//Means it is a FileUpdate
-               
+                
+            System.out.println("Ola amigo");
                 ArrayList<CloudData> users = observable.getUsers();
+                DefaultTableModel model = new DefaultTableModel();
+                model.addColumn("User");
+                model.addColumn("File Name");
+                model.addColumn("Size");
+                
                 for(CloudData user : users){
                     ArrayList<FileData> files = user.getFiles();
                     for(FileData file : files){
                         //tableFiles.addRow(new Object[]{user.getUser(),file.getName(),file.getSize()});
+                        model.addRow(new Object[]{user.getUser(),file.getName(), file.getSize()});
                     }
                 }
+                tableFiles.setModel(model);
         }else if(arg instanceof String)//Means it's a chat msg
             txtAreaChat.append((String)arg);
         else if(arg instanceof TransferNotification)//Means it's a transfernotification

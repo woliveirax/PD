@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class NotificationThread extends Thread {
     private final DataObservable observable;
@@ -99,6 +101,7 @@ public class NotificationThread extends Thread {
                     observable.updateUserFiles(((InitialFilePackageNotification) obj).getUsername());
                     
                 } else if (obj instanceof ServerShutdown){
+                    observable.logout();
                     observable.shutdownClient();
                 } else {
                     System.out.println("I DON'T FEAR ANYTHING BUT THIS THING, THIS THING SCARES ME!");
@@ -106,9 +109,14 @@ public class NotificationThread extends Thread {
             }
             
         } catch (IOException ex) {
-            System.out.println("Erro notification: " + ex);
+            try {
+                System.out.println("Erro notification: " + ex);
                 System.out.println("Server timed out");
+                observable.logout();
                 observable.shutdownClient();
+            } catch (IOException ex1) {
+                System.out.println("couldn't log out");
+            }
         } catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }

@@ -51,13 +51,15 @@ public class ClientHandler extends Thread implements Observer {
     public void exit() {
         CONTINUE = false;
         
-        try {
-            synchronized(notification){
-                notificationOut.writeObject(new ServerShutdown());
-                notificationOut.flush();
+        if(notification != null){
+            try {
+                synchronized(notification){
+                    notificationOut.writeObject(new ServerShutdown());
+                    notificationOut.flush();
+                }
+            } catch (IOException ex) {
+                System.out.println("couldn't send shutdown packet: " + ex);
             }
-        } catch (IOException ex) {
-            System.out.println("couldn't send shutdown packet: " + ex);
         }
         
         try {

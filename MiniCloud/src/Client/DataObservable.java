@@ -72,8 +72,12 @@ public class DataObservable extends Observable implements UpdateType {
     }
     
     public void logout() throws IOException{
-            comm.logout();
-            shutdownClient();
+        comm.logout();
+        watchdog.exit();
+        uploadService.exit();
+        notificationService.exit();
+        keepAlive.exit();
+           // shutdownClient();
     }
     
     //UserData funcs
@@ -226,10 +230,6 @@ public class DataObservable extends Observable implements UpdateType {
     }
     
     public void shutdownClient(){
-        watchdog.exit();
-        uploadService.exit();
-        notificationService.exit();
-        keepAlive.exit();
         comm.closeLink();
     }
 }
