@@ -98,7 +98,7 @@ public class ClientHandler extends Thread implements Observer {
     }
     
     private void sendPrivateMsg(String msg, String dest_name) {
-        msg = "PM -" + username + ": " + msg;
+        msg = "PM -" + username + ": " + msg + "\n";
         Boolean found = false;
 
         for (int i = 0; i < serverObs.getLoggedUserThreads().size(); i++) {
@@ -123,10 +123,9 @@ public class ClientHandler extends Thread implements Observer {
     private void sendGlobalMsg(String msg) {
         //à msg colocar no ini: nome do user:
         ArrayList<ConnectedUser> outsideUsers;
-        msg = username + ": " + msg;
+        msg = username + ": " + msg + "\n";
         
         serverObs.sendChatMessage(msg);
-        serverObs.broadcastUdpPacketToClients(msg);
     }
 
     @Override
@@ -245,7 +244,12 @@ public class ClientHandler extends Thread implements Observer {
                     
                 }  else if (received instanceof Logout) {
                     System.out.println("User: " + username + " Logged out");
-                    serverObs.disconnectUser(username);
+                    try {
+                        serverObs.userLogout(username);
+                    } catch (UserException | SQLException ex) {
+                    }
+                    
+                    break;
                     
                 } else if (received instanceof TransferHistoryPackage) {
                     System.out.println("client : " + username + " requested history");
@@ -272,6 +276,8 @@ public class ClientHandler extends Thread implements Observer {
                 System.out.println("CNF" + e);
             }
         }
+        
+        this.exit();
     }
     
     private synchronized void writeObject(Object obj) throws IOException{
