@@ -1,11 +1,14 @@
 package Server;
 
+import Exceptions.UserException;
+import comm.CloudData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,19 +31,26 @@ public class ServerComm extends Thread{
         
     }
     
-    public void sendExit(){
-        for(int i = 0; i < ClientsThreads.size(); i++)
-            ClientsThreads.get(i).exit();  
-    }
-    
-    public void exit(){
+    public void shutdown(){
         CONTINUE = false;
+        serverObs.shutdownServer();
+        
         try{
             server.close();
         }catch(IOException e){
             System.out.println("could not close the socket!");
         }
     }
+    
+    public ArrayList<CloudData> getUsersData(){
+        try{
+            return serverObs.getAllUsersData();
+        }catch (UserException | SQLException e){
+            System.out.println("Erro: " + e);
+        }
+        return new ArrayList<>();
+    }
+    
         
     @Override
     public void run(){

@@ -15,6 +15,7 @@ import comm.Packets.AddFileRequest;
 import comm.Packets.DataMass;
 import comm.Packets.GetUserData;
 import comm.Packets.RemoveFileRequest;
+import comm.Packets.ServerShutdown;
 import comm.Packets.TransferHistoryPackage;
 import comm.Packets.TransferInfo;
 import comm.Packets.UpdateFileRequest;
@@ -49,6 +50,16 @@ public class ClientHandler extends Thread implements Observer {
 
     public void exit() {
         CONTINUE = false;
+        
+        try {
+            synchronized(notification){
+                notificationOut.writeObject(new ServerShutdown());
+                notificationOut.flush();
+            }
+        } catch (IOException ex) {
+            System.out.println("couldn't send shutdown packet: " + ex);
+        }
+        
         try {
             s.close();
         } catch (IOException e) {
@@ -296,9 +307,10 @@ public class ClientHandler extends Thread implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try{
-            notificationOut.writeObject(arg);
-            notificationOut.flush();
-
+            synchronized(notification){
+                notificationOut.writeObject(arg);
+                notificationOut.flush();
+            }
         }catch(IOException e){
         }
     }

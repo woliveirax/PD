@@ -188,8 +188,17 @@ public class ServerObservable extends Observable{
         keepAlive.broadcastToUdpClients(obj);
     }
     
-    public void sendExit(){
-        for(int i = 0; i < loggedUsers.size(); i++)
-            loggedUsers.get(i).exit();
+    public void shutdownServer(){
+        keepAlive.exit();
+        
+        for(ClientHandler user : loggedUsers){
+            try {
+                DB.userLogout(user.getUsername());
+            } catch (UserException | SQLException e) {
+                System.out.println(e);
+            }
+            user.exit();
+        }
+        DB.shutdown();
     }
 }

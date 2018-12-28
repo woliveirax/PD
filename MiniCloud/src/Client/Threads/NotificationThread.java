@@ -6,6 +6,7 @@ import comm.Packets.AddUser;
 import comm.Packets.InitialFilePackageNotification;
 import comm.Packets.RemoveFileRequest;
 import comm.Packets.RemoveUser;
+import comm.Packets.ServerShutdown;
 import comm.Packets.UpdateFileRequest;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -96,6 +97,9 @@ public class NotificationThread extends Thread {
                 } else if (obj instanceof InitialFilePackageNotification){
                     System.out.println("add init file");
                     observable.updateUserFiles(((InitialFilePackageNotification) obj).getUsername());
+                    
+                } else if (obj instanceof ServerShutdown){
+                    observable.shutdownClient();
                 } else {
                     System.out.println("I DON'T FEAR ANYTHING BUT THIS THING, THIS THING SCARES ME!");
                 }
@@ -103,12 +107,8 @@ public class NotificationThread extends Thread {
             
         } catch (IOException ex) {
             System.out.println("Erro notification: " + ex);
-            try {
-                observable.logout();
-                //throw new RuntimeException("Error accepting the socket");
-            } catch (IOException ex1) {
-                throw new RuntimeException("Error accepting the socket, couldn't end threads" +ex1);
-            }
+                System.out.println("Server timed out");
+                observable.shutdownClient();
         } catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
