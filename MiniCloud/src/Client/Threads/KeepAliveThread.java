@@ -49,7 +49,7 @@ public class KeepAliveThread extends Thread {
         Object obj = in.readObject();
         
         if(obj instanceof String){
-                    observable.sendChatMessage((String)obj);
+                    observable.receiveChatMessage((String)obj);
                     
         } else if(obj instanceof KeepAlive){
             socket.send(packet);
