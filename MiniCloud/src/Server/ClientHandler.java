@@ -249,6 +249,7 @@ public class ClientHandler extends Thread implements Observer {
                     } catch (UserException | SQLException ex) {
                     }
                     
+                    serverObs.removeClientFromClientList(this);
                     break;
                     
                 } else if (received instanceof TransferHistoryPackage) {

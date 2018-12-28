@@ -68,6 +68,10 @@ public class ServerObservable extends Observable{
         return userDisconnect(username);
     }
     
+    public void removeClientFromClientList(ClientHandler cli){
+        loggedUsers.remove(cli);
+    }
+    
     public void userLogout(String username) throws UserException, SQLException{
         DB.userLogout(username);
         

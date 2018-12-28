@@ -14,7 +14,6 @@ import java.util.List;
 
 public class ServerComm extends Thread{
     private final ServerObservable serverObs;
-    private List<ClientHandler> ClientsThreads;
     private static final int MAX_SIZE = 4000;
     private static final int TIMEOUT = 10000; //miliSegundos
     private ServerSocket server = null;
@@ -26,7 +25,6 @@ public class ServerComm extends Thread{
     
     public ServerComm(String DB_IP, int DB_Port) {
         serverObs = new ServerObservable(DB_IP,DB_Port);
-        ClientsThreads = new ArrayList<>();
         CONTINUE = true;
         
     }
@@ -76,7 +74,6 @@ public class ServerComm extends Thread{
                 ClientHandler t = new ClientHandler(nextClient, serverObs); 
                 // Invoking the start() method 
                 t.start();
-                ClientsThreads.add(t); 
             }
 
             
