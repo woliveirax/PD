@@ -320,7 +320,6 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
 
     private void btnTransfersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransfersActionPerformed
         FilesTransferHistory transfers = new FilesTransferHistory(observable, this);
-        //this.setVisible(false);
         transfers.fillHistory();
         transfers.setVisible(true);
     }//GEN-LAST:event_btnTransfersActionPerformed
@@ -393,6 +392,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
             fieldNotification.setText(((TransferNotification)arg).getDetails());
         else if(arg instanceof ServerShutdown){
             dispose();
+            System.exit(0);
         }
     }
 }
