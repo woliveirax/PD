@@ -10,8 +10,10 @@ import Client.WatchDog.WatchDogException;
 import Exceptions.DirectoryException;
 import Exceptions.FileException;
 import Exceptions.InvalidDirectoryException;
+import com.sun.nio.sctp.ShutdownNotification;
 import comm.CloudData;
 import comm.FileData;
+import comm.Packets.ServerShutdown;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -254,7 +256,9 @@ public class DataObservable extends Observable implements UpdateType {
         keepAlive.start();
     }
     
-    public void shutdownClient(){
+    public void shutdownClient() {
         comm.closeLink();
+        setChanged();
+        notifyObservers(new ServerShutdown());
     }
 }

@@ -115,6 +115,7 @@ public class NotificationThread extends Thread {
                 observable.shutdownClient();
             } catch (IOException ex1) {
                 System.out.println("couldn't log out");
+                observable.shutdownClient();
             }
         } catch(Exception e){
             System.out.println("Error notification: " + e.getMessage());

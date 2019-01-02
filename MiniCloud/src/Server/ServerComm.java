@@ -12,17 +12,24 @@ import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ServerComm extends Thread{
     private final ServerObservable serverObs;
     private ServerSocket server = null;
-    Socket nextClient = null;
+    private Socket nextClient = null;
     private boolean CONTINUE;
+    private MonitorService service;
+    private static String serviceName = "rmi://localhost/" + MonitorInterface.SERVICE_NAME;
     
     public ServerComm(String DB_IP, int DB_Port) {
         serverObs = new ServerObservable(DB_IP,DB_Port);
@@ -42,8 +49,8 @@ public class ServerComm extends Thread{
     
     public void startService(){
         try {
-            MonitorService service = new MonitorService(serverObs);
-            Naming.rebind("rmi://localhost/" + MonitorInterface.SERVICE_NAME, service);
+            service = new MonitorService(serverObs);
+            Naming.rebind(serviceName, service);
             
         } catch (RemoteException | MalformedURLException ex) {
             System.out.println("Error: " + ex);
@@ -58,6 +65,16 @@ public class ServerComm extends Thread{
             server.close();
         }catch(IOException e){
             System.out.println("could not close the socket!");
+        }
+        
+        try {
+            UnicastRemoteObject.unexportObject(service, true);
+        } catch (NoSuchObjectException ex) {
+        }
+        
+        try {
+            Naming.unbind(serviceName);
+        } catch (RemoteException | NotBoundException | MalformedURLException ex) {
         }
     }
     

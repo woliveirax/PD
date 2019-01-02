@@ -8,6 +8,7 @@ import Exceptions.DirectoryException;
 import Exceptions.FileException;
 import comm.CloudData;
 import comm.FileData;
+import comm.Packets.ServerShutdown;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -389,5 +390,8 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
         
         }else if(arg instanceof TransferNotification)//Means it's a transfernotification
             fieldNotification.setText(((TransferNotification)arg).getDetails());
+        else if(arg instanceof ServerShutdown){
+            dispose();
+        }
     }
 }

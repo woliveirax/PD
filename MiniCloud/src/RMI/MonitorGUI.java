@@ -7,7 +7,9 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 
 public class MonitorGUI extends JFrame {
@@ -29,20 +31,27 @@ public class MonitorGUI extends JFrame {
                     try {
                         server.removeListener(client);
                         dispose();
+                        UnicastRemoteObject.unexportObject(client, true);
                     } catch (RemoteException ex) {
+                        System.out.println("Erro: " + ex);
                     }
                 }
             });
             
-            
-            //TODO: alterar isso
             String registration = "rmi://" + ip + "/" + MonitorInterface.SERVICE_NAME;
             
             server = (ServerInterface) Naming.lookup(registration);
-            MonitorClient client = new MonitorClient(Jhistory);
+            client = new MonitorClient(Jhistory);
             
             server.addListener(client);
         } catch (RemoteException | NotBoundException | MalformedURLException ex) {
+            JOptionPane.showMessageDialog(this, 
+                              ex.getMessage() + "", 
+                              "Unreacheable ip, is the server online?", 
+                              JOptionPane.WARNING_MESSAGE);
+            
+            dispose();
+            throw new RuntimeException("IP not bound to any server");
         }
     }
 
@@ -158,7 +167,9 @@ public class MonitorGUI extends JFrame {
         try {
             server.removeListener(client);
             dispose();
+            UnicastRemoteObject.unexportObject(client, true);
         } catch (RemoteException ex) {
+            System.out.println("Error: " + ex);
         }
     }//GEN-LAST:event_btnLeaveActionPerformed
     
