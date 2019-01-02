@@ -20,8 +20,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ServerComm extends Thread{
     private final ServerObservable serverObs;
@@ -94,7 +92,7 @@ public class ServerComm extends Thread{
          
         try {
             // BIND TO THE SERVICE PORT
-            server = new ServerSocket(6001,20);
+            server = new ServerSocket(0,20);
                     
 //            server.setSoTimeout(TIMEOUT);
             System.out.println ("Server started, ip: + " + 
