@@ -23,7 +23,7 @@ public class MonitorGUI extends JFrame {
             
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
             this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
-            
+            this.setTitle("Project Miniloud");
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
             addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
@@ -157,7 +157,7 @@ public class MonitorGUI extends JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(loginPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45))
+                .addGap(1, 1, 1))
         );
 
         pack();

@@ -14,6 +14,7 @@ public class CloudLogin extends javax.swing.JFrame {
     private JFileChooser chooser;
 
     public CloudLogin(DataObservable obs) {
+        this.setTitle("Project Minicloud");
         initComponents();
         this.obs = obs;
 

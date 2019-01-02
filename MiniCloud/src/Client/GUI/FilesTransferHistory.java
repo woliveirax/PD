@@ -20,6 +20,7 @@ public class FilesTransferHistory extends javax.swing.JFrame implements UpdateTy
     private final CloudMainScreen previous;
     private final DataObservable obs;
     public FilesTransferHistory(DataObservable obs, CloudMainScreen prev) {
+        this.setTitle("Project Minicloud");
         initComponents();
         this.obs = obs;
         this.previous = prev;

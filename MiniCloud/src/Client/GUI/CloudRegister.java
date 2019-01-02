@@ -14,6 +14,7 @@ public class CloudRegister extends javax.swing.JFrame {
     private final DataObservable obs;
     
     public CloudRegister(DataObservable obs, CloudLogin previous) {
+        this.setTitle("Project Minicloud");
         initComponents();
         this.obs = obs;
         this.previous = previous;

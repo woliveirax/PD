@@ -28,6 +28,7 @@ public class CloudMainScreen extends javax.swing.JFrame implements Observer, Upd
     DataObservable observable;
     
     public CloudMainScreen(DataObservable o) {
+        this.setTitle("Project Minicloud");
         initComponents();
         observable = o;
         observable.addObserver(this);
