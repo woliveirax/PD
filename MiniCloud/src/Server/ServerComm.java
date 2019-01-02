@@ -1,32 +1,53 @@
 package Server;
 
 import Exceptions.UserException;
+import RMI.MonitorInterface;
+import RMI.MonitorService;
 import comm.CloudData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ServerComm extends Thread{
     private final ServerObservable serverObs;
-    private static final int MAX_SIZE = 4000;
-    private static final int TIMEOUT = 10000; //miliSegundos
     private ServerSocket server = null;
-//    private final Socket socket = null;
     Socket nextClient = null;
-    
-    private static String ADDR_IP;
     private boolean CONTINUE;
     
     public ServerComm(String DB_IP, int DB_Port) {
         serverObs = new ServerObservable(DB_IP,DB_Port);
         CONTINUE = true;
         
+        launchRegistry();
+        startService();
+    }
+    
+    public void launchRegistry() {
+        try {
+            LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+        } catch (RemoteException ex) {
+            System.out.println("Registry já esta lançado, ou nao" + ex);
+        }
+    }
+    
+    public void startService(){
+        try {
+            MonitorService service = new MonitorService(serverObs);
+            Naming.rebind("rmi://localhost/" + MonitorInterface.SERVICE_NAME, service);
+            
+        } catch (RemoteException | MalformedURLException ex) {
+            System.out.println("Error: " + ex);
+        }
     }
     
     public void shutdown(){
@@ -48,7 +69,6 @@ public class ServerComm extends Thread{
         }
         return new ArrayList<>();
     }
-    
         
     @Override
     public void run(){
